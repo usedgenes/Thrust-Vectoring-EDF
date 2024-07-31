@@ -14,8 +14,8 @@ cturing Information (PMI)---4.0---2014-10-13',
 /* implementation_level */ '2;1');
 
 FILE_NAME(
-/* name */ 'Shafts',
-/* time_stamp */ '2024-07-30T22:39:41Z',
+/* name */ 'Shaft',
+/* time_stamp */ '2024-07-31T06:19:55Z',
 /* author */ (''),
 /* organization */ (''),
 /* preprocessor_version */ 'ST-DEVELOPER v20',
