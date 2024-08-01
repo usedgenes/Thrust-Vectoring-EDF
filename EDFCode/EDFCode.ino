@@ -30,7 +30,8 @@ void setup() {
     while (1)
       ;
   }
-    setReports();
+  
+  setReports();
   float quatI = myIMU.getQuatI();
       float quatJ = myIMU.getQuatJ();
       float quatK = myIMU.getQuatK();
@@ -55,6 +56,12 @@ void setReports(void) {
               // configuration and clear its reset status
 }
 
+void writeServoValues(int servoRight, int servoLeft, int servoTop, int servoBottom) {
+  servoRight.write(servoRight)
+  servoLeft.write(servoLeft)
+  servoTop.write(servoTop)
+  servoBottom.write(servoBottom)
+}
 
 float pid(float currentAltitude, unsigned long currentTime) {
   unsigned long dt = currentTime - previousTime;
