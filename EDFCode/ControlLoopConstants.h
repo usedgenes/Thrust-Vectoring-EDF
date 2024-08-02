@@ -14,7 +14,7 @@ class ControlLoopConstants : public SingletonSimple<ControlLoopConstants> {
   public:
     // Angle mode
     // These parameters are very important for flight success
-    // They must be tuned for each frame type, motors, and propeller used
+    // They must be tuned for each frame type, Servos, and propeller used
     Constants anglePos = {.G = 0.010, .Kp = 268, .Kd = 0.5, .Ki = 0.0};
     Constants angleSpeed = {.G = 0.010, .Kp = 192, .Kd = 0.0, .Ki = 0.0};
 
