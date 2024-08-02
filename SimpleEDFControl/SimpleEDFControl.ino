@@ -6,11 +6,23 @@
 #define BMP_CS 10
 
 #define SEALEVELPRESSURE_HPA (1013.25)
-Servo myservo;
+Servo edf;
+Servo servoTop;
+Servo servoRight;
+Servo servoBottom;
+Servo servoLeft;
+
+bool firstNumber = true;
+int servoNumber;
+
 int num;
 void setup() {
   Serial.begin(115200);
-  myservo.attach(13);
+  edf.attach(15);
+  servoTop.attach(12);
+  servoRight.attach(13);
+  servoBottom.attach(14);
+  servoLeft.attach(27);
   // Set up oversampling and filter initialization
 }
 
@@ -21,9 +33,28 @@ void loop() {
 while(Serial.available()>0)
 {
 num= Serial.parseInt();
-Serial.println(num);
+if (firstNumber) {
+  firstNumber = false;
+  servoNumber = num;
+  break;
 }
-myservo.write(num);
-
+else {
+  if(servoNumber == 0) {
+    edf.write(num);
+  }
+  if(servoNumber == 1) {
+    servoTop.write(118 + num);
+  }
+  if(servoNumber == 2) {
+    servoRight.write(82 + num);
+  }
+  if(servoNumber == 3) {
+    servoBottom.write(100 + num);
+  }
+  if(servoNumber == 4) {
+    servoLeft.write(56 + num);
+  }
+}
+}
 
 }
