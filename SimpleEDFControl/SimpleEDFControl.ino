@@ -11,9 +11,7 @@ Servo servoTop;
 Servo servoRight;
 Servo servoBottom;
 Servo servoLeft;
-
-bool firstNumber = true;
-int servoNumber;
+String readString, servoT, servoR, servoB, servoL, edfString;
 
 int num;
 void setup() {
@@ -28,33 +26,55 @@ void setup() {
 
 
 void loop() {
+  while (Serial.available()) {
+    delay(1);
+    if (Serial.available() > 0) {
+      char c = Serial.read();  //gets one byte from serial buffer
+      readString += c;         //makes the string readString
+    }
+  }
 
+  if (readString.length() > 0) {
+    Serial.println(readString);  //see what was received
 
-while(Serial.available()>0)
-{
-num= Serial.parseInt();
-if (firstNumber) {
-  firstNumber = false;
-  servoNumber = num;
-  break;
-}
-else {
-  if(servoNumber == 0) {
-    edf.write(num);
-  }
-  if(servoNumber == 1) {
-    servoTop.write(118 + num);
-  }
-  if(servoNumber == 2) {
-    servoRight.write(82 + num);
-  }
-  if(servoNumber == 3) {
-    servoBottom.write(100 + num);
-  }
-  if(servoNumber == 4) {
-    servoLeft.write(56 + num);
-  }
-}
-}
+    // expect a string like 000000000000000
+    edfString = readString.substring(0, 3); 
+    servoT = readString.substring(3, 5);   
+    servoR = readString.substring(5, 7);  
+    servoB = readString.substring(7, 9);   
+    servoL = readString.substring(9, 11);  
 
+    int n0;
+    int n1;  //declare as number
+    int n2;
+    int n3;
+    int n4;
+
+    char carray1[6];  //magic needed to convert string to a number
+    edfString.toCharArray(carray1, sizeof(carray1));
+    n0 = atoi(carray1);
+
+    char carray2[6];
+    servoT.toCharArray(carray2, sizeof(carray2));
+    n1 = atoi(carray2);
+
+    char carray3[6];
+    servoT.toCharArray(carray3, sizeof(carray3));
+    n2 = atoi(carray2);
+
+    char carray4[6];
+    servoT.toCharArray(carray4, sizeof(carray4));
+    n3 = atoi(carray4);
+
+    char carray5[6];
+    servoT.toCharArray(carray5, sizeof(carray5));
+    n4 = atoi(carray2);
+    
+    edf.w             rite(n0);
+    servoTop.write(118+n1);
+    servoRight.write(82+n2);
+    servoBottom.write(100+n3);
+    servoLeft.write(56+n4);
+    readString = "";
+  }
 }
