@@ -1,7 +1,7 @@
 #ifndef CONTROLLOOPCONSTANTS_H_
 #define CONTROLLOOPCONSTANTS_H_
 
-#include "../Singleton.h"
+#include "Singleton.h"
 
 typedef struct {
     float G;

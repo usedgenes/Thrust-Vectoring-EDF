@@ -1,12 +1,10 @@
 #ifndef CUSTOMMATH_H_
 #define CUSTOMMATH_H_
 
-#include <avr/wdt.h>
 #include <limits.h>
 #include <math.h>
 
 #include "CustomSerialPrint.h"
-#include "../libraries/I2Cdev/I2Cdev.h"
 
 #define RAD2DEG(angle) angle * 180 / PI
 

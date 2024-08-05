@@ -2,10 +2,9 @@
 #define INERTIALMEASUREMENTUNIT_H_
 
 #include "Wire.h"
-#include "../../libraries/I2Cdev/I2Cdev.h"
-#include "../../libraries/MPU6050/MPU6050.h"
-#include "../../customLibs/CustomMath.h"
-#include "../../customLibs/CustomSerialPrint.h"
+#include "SparkFun_BNO08x_Arduino_Library.h"
+#include "CustomMath.h"
+#include "CustomSerialPrint.h"
 
 class InertialMeasurementUnit{
   private:
@@ -17,7 +16,8 @@ class InertialMeasurementUnit{
     int16_t accOffsets[AXIS_NB] = {0, 0, 0};
     bool initialized = false;
     bool offsetComputed = false;
-    MPU6050 accelgyro; // IMU
+    SPIClass vspi = SPIClass(VSPI);
+    BNO08X accelgyro; // IMU
 
   private:
     bool ComputeGyroOffsets();

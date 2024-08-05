@@ -4,6 +4,8 @@
 #define BNO08X_INT  25
 #define BNO08X_RST  26
 
+BNO08x myIMU;
+
 SPIClass vspi = SPIClass(VSPI);
 
 void setup() {
@@ -62,8 +64,6 @@ void loop() {
 
   if (myIMU.getSensorEvent() == true) {
 
-    if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-
       float quatI = myIMU.getQuatI();
       float quatJ = myIMU.getQuatJ();
       float quatK = myIMU.getQuatK();
@@ -81,37 +81,34 @@ void loop() {
       Serial.print(quatRadianAccuracy, 2);
 
       Serial.println();
-    }
+    
 
-    if (myIMU.getSensorEventID() == SENSOR_REPORTID_GYROSCOPE_CALIBRATED) {
-      float x = myIMU.getGyroX();
-      float y = myIMU.getGyroY();
-      float z = myIMU.getGyroZ();
+      float x1 = myIMU.getGyroX();
+      float y1 = myIMU.getGyroY();
+      float z1 = myIMU.getGyroZ();
 
       Serial.print("Gyroscope ");
-      Serial.print(x, 2);
+      Serial.print(x1, 2);
       Serial.print(F(","));
-      Serial.print(y, 2);
+      Serial.print(y1, 2);
       Serial.print(F(","));
-      Serial.print(z, 2);
+      Serial.print(z1, 2);
 
       Serial.println();
-    }
+    
 
-    if (myIMU.getSensorEventID() == SENSOR_REPORTID_ACCELEROMETER) {
-
-      float x = myIMU.getAccelX();
-      float y = myIMU.getAccelY();
-      float z = myIMU.getAccelZ();
+      float x2= myIMU.getAccelX();
+      float y2 = myIMU.getAccelY();
+      float z2 = myIMU.getAccelZ();
       Serial.print("Accelerometer ");
-      Serial.print(x, 2);
+      Serial.print(x2, 2);
       Serial.print(F(","));
-      Serial.print(y, 2);
+      Serial.print(y2, 2);
       Serial.print(F(","));
-      Serial.print(z, 2);
+      Serial.print(z2, 2);
 
       Serial.println();
-    }
+    
 
     delay(500);
 

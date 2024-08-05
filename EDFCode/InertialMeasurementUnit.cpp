@@ -1,26 +1,26 @@
-#include <avr/wdt.h>
 #include "InertialMeasurementUnit.h"
+
 void InertialMeasurementUnit::Init() {
-    // MPU6050: join I2C bus
-    Wire.begin();
-    Wire.setClock(400000L); // Communication with MPU-6050 at 400KHz
+    // BNO08X: join I2C bus
+    vspi.begin(22, 23, 21, 33); // Communication with MPU-6050 at 400KHz
 
     // Initialize MPU 6050
-    accelgyro.initialize();
+    accelgyro.beginSPI(BNO08X_CS, BNO08X_INT, BNO08X_RST, 1000000, vspi
 
-    SetGyroRange(MPU6050_GYRO_FS_1000);
-    SetAccRange(MPU6050_ACCEL_FS_8);
+    myIMU.enableGyro()
+    myIMU.enableAccelerometer()
 
-    wdt_reset();
-    if (!accelgyro.testConnection())
-        CustomSerialPrint::println(F("InertialMeasurementUnit: Function testConnection failed"));
+    SetGyroRange(BNO08X_GYRO_FS_1000);
+    SetAccRange(BNO08X_ACCEL_FS_8);
+    
 }
 
 void InertialMeasurementUnit::GetCorrectedAccelGyro(float _accMeasures[], float _gyroMeasures[]) {
     int16_t accel[AXIS_NB] = {0, 0, 0};
     int16_t speed[AXIS_NB] = {0, 0, 0};
 
-    accelgyro.getMotion6(&accel[0], &accel[1], &accel[2], &speed[0], &speed[1], &speed[2]);
+    accelgyro.getAccel(&accel[0], &accel[1], &accel[2]);
+    accelgyro.getGyro(&speed[0], &speed[1], &speed[2])
 
     // Correct raw data with offset
     for (int axis = 0; axis < AXIS_NB; axis++) {
@@ -33,16 +33,16 @@ void InertialMeasurementUnit::GetCorrectedAccelGyro(float _accMeasures[], float 
 
 void InertialMeasurementUnit::SetAccRange(uint8_t _range) {
     switch (_range) {
-    case MPU6050_ACCEL_FS_2:
+    case BNO08X_ACCEL_FS_2:
         AcceleroSensitivity = 16384;
         break;
-    case MPU6050_ACCEL_FS_4:
+    case BNO08X_ACCEL_FS_4:
         AcceleroSensitivity = 8192;
         break;
-    case MPU6050_ACCEL_FS_8:
+    case BNO08X_ACCEL_FS_8:
         AcceleroSensitivity = 4096;
         break;
-    case MPU6050_ACCEL_FS_16:
+    case BNO08X_ACCEL_FS_16:
         AcceleroSensitivity = 2048;
         break;
     }
@@ -51,16 +51,16 @@ void InertialMeasurementUnit::SetAccRange(uint8_t _range) {
 
 void InertialMeasurementUnit::SetGyroRange(uint8_t _range) {
     switch (_range) {
-    case MPU6050_GYRO_FS_250:
+    case BNO08X_GYRO_FS_250:
         GyroSensitivity = 131;
         break;
-    case MPU6050_GYRO_FS_500:
+    case BNO08X_GYRO_FS_500:
         GyroSensitivity = 65.5;
         break;
-    case MPU6050_GYRO_FS_1000:
+    case BNO08X_GYRO_FS_1000:
         GyroSensitivity = 32.8;
         break;
-    case MPU6050_GYRO_FS_2000:
+    case BNO08X_GYRO_FS_2000:
         GyroSensitivity = 16.4;
         break;
     }
@@ -85,7 +85,7 @@ bool InertialMeasurementUnit::ComputeGyroOffsets() {
 
     // Get 10 samples during 2 sec
     for (int sample = 0; sample < 10; sample++) {
-        accelgyro.getRotation(&gyroRaw[0][sample], &gyroRaw[1][sample], &gyroRaw[2][sample]);
+        accelgyro.getGyro(&gyroRaw[0][sample], &gyroRaw[1][sample], &gyroRaw[2][sample]);
         CustomSerialPrint::print(gyroRaw[0][sample]);
         CustomSerialPrint::print("\t");
         CustomSerialPrint::print(gyroRaw[1][sample]);
@@ -122,13 +122,12 @@ bool InertialMeasurementUnit::ComputeAccelOffsets() {
 
     // Get 10 samples during 2 sec
     for (int sample = 0; sample < 10; sample++) {
-        accelgyro.getAcceleration(&accRaw[0][sample], &accRaw[1][sample], &accRaw[2][sample]);
+        accelgyro.getAccel(&accRaw[0][sample], &accRaw[1][sample], &accRaw[2][sample]);
         CustomSerialPrint::print(accRaw[0][sample]);
         CustomSerialPrint::print("\t");
         CustomSerialPrint::print(accRaw[1][sample]);
         CustomSerialPrint::print("\t");
         CustomSerialPrint::println(accRaw[2][sample]);
-        wdt_reset();
         delay(200);
     }
 
