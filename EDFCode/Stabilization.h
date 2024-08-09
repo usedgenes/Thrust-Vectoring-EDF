@@ -42,9 +42,7 @@ class Stabilization {
     void Idle();
     void Angle(float _loopTimeSec);
     void ResetPID();
-    void ApplyServosSpeed(volatile uint16_t *TCNTn, volatile uint16_t *OCRnA) {
-        servosSpeedControl.ApplySpeed(TCNTn, OCRnA);
-    }
+
     int GetServosMaxPosition() {
         return servosSpeedControl.GetServosMaxPosition();
     }

@@ -22,10 +22,9 @@ void loop() {
   loopTimeSec = myTime.GetloopTimeMilliseconds();
 
   // State Machine Initializing -> Ready -> AngleMode/AccroMode -> Safety -> Disarmed -> AngleMode/AccroMode
-  stateMachine.Run(loopTimeSec);
+  stabilization.Angle(loopTimeSec);
 
   // Compute mean loop time and complementary filter time constant
-  if (!stabilization.IsThrottleIdle()) {
-    myTime.ComputeMeanLoopTime(loopTimeSec, meanLoopTime, loopNb);
-  }
+  myTime.ComputeMeanLoopTime(loopTimeSec, meanLoopTime, loopNb);
+  
 }

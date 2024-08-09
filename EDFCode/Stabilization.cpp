@@ -2,7 +2,7 @@
 #include "Stabilization.h"
 
 void Stabilization::Init() {
-    ServosSpeedControl.Init();
+    servosSpeedControl.Init();
     inertialMeasurementUnit.Init();
 
     SetAngleModeControlLoopConfig();
@@ -108,20 +108,16 @@ void Stabilization::ResetPID() {
     rollSpeedPID_Angle.Reset();
     pitchSpeedPID_Angle.Reset();
     yawControlLoop.Reset();
-    rollSpeedPID_Accro.Reset();
-    pitchSpeedPID_Accro.Reset();
 
-    SetServoPosition();
+    SetServosPosition();
 }
 
 void Stabilization::SetServosPosition() {
-    ServosSpeedControl.UpdatePosition(Servo0, pitchServoPwr * mixing + rollServoPwr * mixing - yawServoPwr * mixing);
-    ServosSpeedControl.UpdatePosition(Servo1, pitchServoPwr * mixing - rollServoPwr * mixing + yawServoPwr * mixing);
-    ServosSpeedControl.UpdateSpeed(Servo2, pitchServoPwr * mixing - rollServoPwr * mixing - yawServoPwr * mixing);
-    ServosSpeedControl.UpdatePosition(Servo3, pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
+    servosSpeedControl.UpdatePosition(Servo0, pitchServoPwr * mixing + rollServoPwr * mixing - yawServoPwr * mixing);
+    servosSpeedControl.UpdatePosition(Servo1, pitchServoPwr * mixing - rollServoPwr * mixing + yawServoPwr * mixing);
+    servosSpeedControl.UpdatePosition(Servo2, pitchServoPwr * mixing - rollServoPwr * mixing - yawServoPwr * mixing);
+    servosSpeedControl.UpdatePosition(Servo3, pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
 }
 
-void Stabilization::Idle() {
-    ServosSpeedControl.Idle();
-}
+
 #endif

@@ -5,22 +5,21 @@ void InertialMeasurementUnit::Init() {
     vspi.begin(22, 23, 21, 33); // Communication with MPU-6050 at 400KHz
 
     // Initialize MPU 6050
-    accelgyro.beginSPI(BNO08X_CS, BNO08X_INT, BNO08X_RST, 1000000, vspi
+    accelgyro.beginSPI(33, 25, 26, 1000000, vspi);
 
-    myIMU.enableGyro()
-    myIMU.enableAccelerometer()
+    accelgyro.enableGyro();
+    accelgyro.enableAccelerometer();
 
-    SetGyroRange(BNO08X_GYRO_FS_1000);
-    SetAccRange(BNO08X_ACCEL_FS_8);
-    
+    AcceleroSensitivity = 4096;
+    GyroSensitivity = 32.8;
 }
 
 void InertialMeasurementUnit::GetCorrectedAccelGyro(float _accMeasures[], float _gyroMeasures[]) {
-    int16_t accel[AXIS_NB] = {0, 0, 0};
-    int16_t speed[AXIS_NB] = {0, 0, 0};
-
-    accelgyro.getAccel(&accel[0], &accel[1], &accel[2]);
-    accelgyro.getGyro(&speed[0], &speed[1], &speed[2])
+    float accel[AXIS_NB] = {0, 0, 0};
+    float speed[AXIS_NB] = {0, 0, 0};
+    uint8_t temp[1] = {0};
+    accelgyro.getAccel(accel[0], accel[1], accel[2], temp[0]);
+    accelgyro.getGyro(speed[0], speed[1], speed[2], temp[0]);
 
     // Correct raw data with offset
     for (int axis = 0; axis < AXIS_NB; axis++) {
@@ -32,39 +31,39 @@ void InertialMeasurementUnit::GetCorrectedAccelGyro(float _accMeasures[], float 
 }
 
 void InertialMeasurementUnit::SetAccRange(uint8_t _range) {
-    switch (_range) {
-    case BNO08X_ACCEL_FS_2:
-        AcceleroSensitivity = 16384;
-        break;
-    case BNO08X_ACCEL_FS_4:
-        AcceleroSensitivity = 8192;
-        break;
-    case BNO08X_ACCEL_FS_8:
-        AcceleroSensitivity = 4096;
-        break;
-    case BNO08X_ACCEL_FS_16:
-        AcceleroSensitivity = 2048;
-        break;
-    }
-    accelgyro.setFullScaleAccelRange(_range);
+    // switch (_range) {
+    // case BNO08X_ACCEL_FS_2:
+    //     AcceleroSensitivity = 16384;
+    //     break;
+    // case BNO08X_ACCEL_FS_4:
+    //     AcceleroSensitivity = 8192;
+    //     break;
+    // case BNO08X_ACCEL_FS_8:
+    //     AcceleroSensitivity = 4096;
+    //     break;
+    // case BNO08X_ACCEL_FS_16:
+    //     AcceleroSensitivity = 2048;
+    //     break;
+    // }
+    // accelgyro.setFullScaleAccelRange(_range);
 }
 
 void InertialMeasurementUnit::SetGyroRange(uint8_t _range) {
-    switch (_range) {
-    case BNO08X_GYRO_FS_250:
-        GyroSensitivity = 131;
-        break;
-    case BNO08X_GYRO_FS_500:
-        GyroSensitivity = 65.5;
-        break;
-    case BNO08X_GYRO_FS_1000:
-        GyroSensitivity = 32.8;
-        break;
-    case BNO08X_GYRO_FS_2000:
-        GyroSensitivity = 16.4;
-        break;
-    }
-    accelgyro.setFullScaleGyroRange(_range);
+    // switch (_range) {
+    // case BNO08X_GYRO_FS_250:
+    //     GyroSensitivity = 131;
+    //     break;
+    // case BNO08X_GYRO_FS_500:
+    //     GyroSensitivity = 65.5;
+    //     break;
+    // case BNO08X_GYRO_FS_1000:
+    //     GyroSensitivity = 32.8;
+    //     break;
+    // case BNO08X_GYRO_FS_2000:
+    //     GyroSensitivity = 16.4;
+    //     break;
+    // }
+    // accelgyro.setFullScaleGyroRange(_range);
 }
 
 // Compute accelerometer and gyroscope offsets
@@ -76,7 +75,8 @@ void InertialMeasurementUnit::ComputeOffsets() {
 }
 
 bool InertialMeasurementUnit::ComputeGyroOffsets() {
-    int16_t gyroRaw[AXIS_NB][SAMPLES_NB];
+    float gyroRaw[AXIS_NB][SAMPLES_NB];
+    uint8_t temp[1] = {0};
     float mean = 0;
 
     for (int axis = 0; axis < AXIS_NB; axis++)
@@ -85,7 +85,7 @@ bool InertialMeasurementUnit::ComputeGyroOffsets() {
 
     // Get 10 samples during 2 sec
     for (int sample = 0; sample < 10; sample++) {
-        accelgyro.getGyro(&gyroRaw[0][sample], &gyroRaw[1][sample], &gyroRaw[2][sample]);
+        accelgyro.getGyro(gyroRaw[0][sample], gyroRaw[1][sample], gyroRaw[2][sample], temp[0]);
         CustomSerialPrint::print(gyroRaw[0][sample]);
         CustomSerialPrint::print("\t");
         CustomSerialPrint::print(gyroRaw[1][sample]);
@@ -113,7 +113,8 @@ bool InertialMeasurementUnit::ComputeGyroOffsets() {
 }
 
 bool InertialMeasurementUnit::ComputeAccelOffsets() {
-    int16_t accRaw[AXIS_NB][SAMPLES_NB];
+    float accRaw[AXIS_NB][SAMPLES_NB];
+    uint8_t temp[1] = {0};
     float mean = 0.0;
 
     for (int axis = 0; axis < AXIS_NB; axis++)
@@ -122,7 +123,7 @@ bool InertialMeasurementUnit::ComputeAccelOffsets() {
 
     // Get 10 samples during 2 sec
     for (int sample = 0; sample < 10; sample++) {
-        accelgyro.getAccel(&accRaw[0][sample], &accRaw[1][sample], &accRaw[2][sample]);
+        accelgyro.getAccel(accRaw[0][sample], accRaw[1][sample], accRaw[2][sample], temp[0]);
         CustomSerialPrint::print(accRaw[0][sample]);
         CustomSerialPrint::print("\t");
         CustomSerialPrint::print(accRaw[1][sample]);

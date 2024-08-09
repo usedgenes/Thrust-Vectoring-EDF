@@ -1,6 +1,6 @@
 #include "CustomMath.h"
 
-bool CustomMath::ComputeDelta(int16_t _list[], int _size, int16_t *_delta) {
+bool CustomMath::ComputeDelta(float _list[], int _size, int16_t *_delta) {
 
     if (_size <= 2)
         return false;
@@ -22,7 +22,7 @@ bool CustomMath::ComputeDelta(int16_t _list[], int _size, int16_t *_delta) {
     return true;
 }
 
-bool CustomMath::ComputeMean(int16_t _list[], int _size, int16_t _deltaThreshold, float *_mean) {
+bool CustomMath::ComputeMean(float _list[], int _size, int16_t _deltaThreshold, float *_mean) {
     if (_size <= 0)
         return false;
 

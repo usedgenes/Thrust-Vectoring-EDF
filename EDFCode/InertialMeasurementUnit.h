@@ -17,7 +17,7 @@ class InertialMeasurementUnit{
     bool initialized = false;
     bool offsetComputed = false;
     SPIClass vspi = SPIClass(VSPI);
-    BNO08X accelgyro; // IMU
+    BNO08x accelgyro; // IMU
 
   private:
     bool ComputeGyroOffsets();
