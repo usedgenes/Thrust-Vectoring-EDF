@@ -1,14 +1,16 @@
 #ifndef CUSTOMSERIALPRINT_H_
 #define CUSTOMSERIALPRINT_H_
 
-//#define LOG_DEBUG 1 // Uncomment to activate verbose mode when running
+#define LOG_DEBUG 1 // Uncomment to activate verbose mode when running
 #include <WString.h>
+#include <Arduino.h>
 
 class CustomSerialPrint {
   public:
 #ifdef LOG_DEBUG
     static void begin(unsigned long _baudRate) {
         Serial.begin(_baudRate);
+        Serial.println("Serial Initializing");
     }
     static void print(int _number) {
         Serial.print(_number);

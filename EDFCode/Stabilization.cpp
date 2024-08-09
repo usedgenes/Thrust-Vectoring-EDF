@@ -2,6 +2,7 @@
 #include "Stabilization.h"
 
 void Stabilization::Init() {
+    CustomSerialPrint::println("Stabilization intialized");
     servosSpeedControl.Init();
     inertialMeasurementUnit.Init();
 
@@ -14,14 +15,14 @@ void Stabilization::SetAngleModeControlLoopConfig() {
     pitchPosPID_Angle.SetGains(ControlLoopConstants::GetInstance()->anglePos);
     rollSpeedPID_Angle.SetGains(ControlLoopConstants::GetInstance()->angleSpeed);
     pitchSpeedPID_Angle.SetGains(ControlLoopConstants::GetInstance()->angleSpeed);
+    CustomSerialPrint::println("AngleModeControlLoop initialized");
 }
 
 void Stabilization::SetYawControlLoopConfig() {
-    //change first number after map
-    ControlLoopConstants::GetInstance()->yawSpeed.Kp = (float)map(0.5, 0, 1023, 0, 500);
-    CustomSerialPrint::print("Yaw kP: ");
-    CustomSerialPrint::println(ControlLoopConstants::GetInstance()->yawSpeed.Kp);
+    // CustomSerialPrint::print("Yaw kP: ");
+    // CustomSerialPrint::println(ControlLoopConstants::GetInstance()->yawSpeed.Kp);
     yawControlLoop.SetGains(ControlLoopConstants::GetInstance()->yawSpeed);
+    CustomSerialPrint::println("YawControlLoop initialized");
 }
 
 
@@ -44,6 +45,8 @@ void Stabilization::Angle(float _loopTimeSec) {
 
     // Compute yaw speed command
     yawServoPwr = yawControlLoop.ComputeCorrection(0,angularSpeedCurr[ZAXIS], _loopTimeSec);
+
+    CustomSerialPrint::println("Angle");
 
     // Apply computed command to Servos
     SetServosPosition();
@@ -113,10 +116,20 @@ void Stabilization::ResetPID() {
 }
 
 void Stabilization::SetServosPosition() {
-    servosSpeedControl.UpdatePosition(Servo0, pitchServoPwr * mixing + rollServoPwr * mixing - yawServoPwr * mixing);
-    servosSpeedControl.UpdatePosition(Servo1, pitchServoPwr * mixing - rollServoPwr * mixing + yawServoPwr * mixing);
-    servosSpeedControl.UpdatePosition(Servo2, pitchServoPwr * mixing - rollServoPwr * mixing - yawServoPwr * mixing);
-    servosSpeedControl.UpdatePosition(Servo3, pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
+    // servosSpeedControl.UpdatePosition(Servo0, pitchServoPwr * mixing + rollServoPwr * mixing - yawServoPwr * mixing);
+    // Serial.print("1 ");
+    // Serial.println(pitchServoPwr * mixing + rollServoPwr * mixing - yawServoPwr * mixing);
+    // servosSpeedControl.UpdatePosition(Servo1, pitchServoPwr * mixing - rollServoPwr * mixing + yawServoPwr * mixing);
+    // Serial.print("2 ");
+    // Serial.println(pitchServoPwr * mixing - rollServoPwr * mixing - yawServoPwr * mixing);
+    // servosSpeedControl.UpdatePosition(Servo2, pitchServoPwr * mixing - rollServoPwr * mixing - yawServoPwr * mixing);
+    // Serial.print("3 ");
+    // Serial.println(pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
+    // servosSpeedControl.UpdatePosition(Servo3, pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
+    // Serial.print("4 ");
+    // Serial.println(pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
+    CustomSerialPrint::println("Setting servo position");
+
 }
 
 

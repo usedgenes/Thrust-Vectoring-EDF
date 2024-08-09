@@ -12,6 +12,7 @@ void InertialMeasurementUnit::Init() {
 
     AcceleroSensitivity = 4096;
     GyroSensitivity = 32.8;
+    CustomSerialPrint::println("imu initialized");
 }
 
 void InertialMeasurementUnit::GetCorrectedAccelGyro(float _accMeasures[], float _gyroMeasures[]) {
@@ -28,50 +29,6 @@ void InertialMeasurementUnit::GetCorrectedAccelGyro(float _accMeasures[], float 
         _gyroMeasures[axis] =
                 static_cast<float>((speed[axis] - gyroOffsets[axis]) / GyroSensitivity);
     }
-}
-
-void InertialMeasurementUnit::SetAccRange(uint8_t _range) {
-    // switch (_range) {
-    // case BNO08X_ACCEL_FS_2:
-    //     AcceleroSensitivity = 16384;
-    //     break;
-    // case BNO08X_ACCEL_FS_4:
-    //     AcceleroSensitivity = 8192;
-    //     break;
-    // case BNO08X_ACCEL_FS_8:
-    //     AcceleroSensitivity = 4096;
-    //     break;
-    // case BNO08X_ACCEL_FS_16:
-    //     AcceleroSensitivity = 2048;
-    //     break;
-    // }
-    // accelgyro.setFullScaleAccelRange(_range);
-}
-
-void InertialMeasurementUnit::SetGyroRange(uint8_t _range) {
-    // switch (_range) {
-    // case BNO08X_GYRO_FS_250:
-    //     GyroSensitivity = 131;
-    //     break;
-    // case BNO08X_GYRO_FS_500:
-    //     GyroSensitivity = 65.5;
-    //     break;
-    // case BNO08X_GYRO_FS_1000:
-    //     GyroSensitivity = 32.8;
-    //     break;
-    // case BNO08X_GYRO_FS_2000:
-    //     GyroSensitivity = 16.4;
-    //     break;
-    // }
-    // accelgyro.setFullScaleGyroRange(_range);
-}
-
-// Compute accelerometer and gyroscope offsets
-void InertialMeasurementUnit::ComputeOffsets() {
-    if (ComputeGyroOffsets() && ComputeAccelOffsets())
-        offsetComputed = true;
-    else
-        offsetComputed = false;
 }
 
 bool InertialMeasurementUnit::ComputeGyroOffsets() {

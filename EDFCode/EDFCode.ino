@@ -1,30 +1,28 @@
-#include <math.h>
-#include "CustomTime.h"
 #include "Stabilization.h"
 
-CustomTime myTime;
 Stabilization stabilization;
 
-// Initialiaze all sensors and communication pipes
+unsigned long loopTime;
+unsigned long previousTime;
+
 void setup() {
-  CustomSerialPrint::begin(230400);  // Console print: initialize serial communication
+  CustomSerialPrint::begin(115200);  // Console print: initialize serial communication
 
   stabilization.Init();
-  myTime.Init();
+
+  loopTime = 0;
 }
 
 // Main loop
 void loop() {
-  float loopTimeSec = 0.0;
-  uint16_t loopNb = 0;
-  float meanLoopTime = 0.0;
+  previousTime = loopTime;
+  loopTime = millis(); 
 
-  loopTimeSec = myTime.GetloopTimeMilliseconds();
+  float deltaTime = (loopTime-previousTime)/1000;
+  stabilization.Angle(deltaTime);
 
-  // State Machine Initializing -> Ready -> AngleMode/AccroMode -> Safety -> Disarmed -> AngleMode/AccroMode
-  stabilization.Angle(loopTimeSec);
+  Serial.print("Loop time: ");
+  Serial.println(deltaTime);
 
-  // Compute mean loop time and complementary filter time constant
-  myTime.ComputeMeanLoopTime(loopTimeSec, meanLoopTime, loopNb);
-  
+  delay(1000);
 }
