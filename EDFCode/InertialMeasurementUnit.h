@@ -24,6 +24,7 @@ class InertialMeasurementUnit{
     bool ComputeAccelOffsets();
     void SetAccRange(uint8_t _range);
     void SetGyroRange(uint8_t _range);
+    void setReports();
 
   public:
     void Init();

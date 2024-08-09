@@ -1,54 +1,63 @@
 #ifndef CUSTOMSERIALPRINT_H_
 #define CUSTOMSERIALPRINT_H_
 
-#define LOG_DEBUG 1 // Uncomment to activate verbose mode when running
+#define LOG_DEBUG 1  // Uncomment to activate verbose mode when running
 #include <WString.h>
 #include <Arduino.h>
 
 class CustomSerialPrint {
-  public:
+public:
 #ifdef LOG_DEBUG
-    static void begin(unsigned long _baudRate) {
-        Serial.begin(_baudRate);
-        Serial.println("Serial Initializing");
-    }
-    static void print(int _number) {
-        Serial.print(_number);
-    }
+  static void begin(unsigned long _baudRate) {
+    Serial.begin(_baudRate);
+    Serial.println("Serial Initializing");
+  }
+  static void print(int _number) {
+    Serial.print(_number);
+  }
 
-    static void println(int _number) {
-        Serial.println(_number);
-    }
+  static void println(int _number) {
+    Serial.println(_number);
+  }
 
-    static void print(String _string) {
-        Serial.print(_string);
-    }
+  static void print(double _number) {
+    Serial.print(_number, 2);
+  }
 
-    static void println(String _string) {
-        Serial.println(_string);
-    }
+  static void println(double _number) {
+    Serial.println(_number, 2);
+  }
 
-    static void println(double _string, int significantNb) {
-        Serial.println(_string, significantNb);
-    }
+
+  static void print(String _string) {
+    Serial.print(_string);
+  }
+
+  static void println(String _string) {
+    Serial.println(_string);
+  }
+
+  static void println(double _string, int significantNb) {
+    Serial.println(_string, significantNb);
+  }
 #else
-    static void begin(unsigned long _baudRate) {
-    }
-    static void print(int _number) {
-    }
+  static void begin(unsigned long _baudRate) {
+  }
+  static void print(int _number) {
+  }
 
-    static void println(int _number) {
-    }
+  static void println(int _number) {
+  }
 
-    static void print(String _string) {
-    }
+  static void print(String _string) {
+  }
 
-    static void println(String _string) {
-    }
+  static void println(String _string) {
+  }
 
-    static void println(double _string, int significantNb) {
-    }
+  static void println(double _string, int significantNb) {
+  }
 #endif
 };
 
-#endif // CUSTOMSERIALPRINT_H_
+#endif  // CUSTOMSERIALPRINT_H_

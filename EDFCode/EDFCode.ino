@@ -6,7 +6,7 @@ unsigned long loopTime;
 unsigned long previousTime;
 
 void setup() {
-  CustomSerialPrint::begin(115200);  // Console print: initialize serial communication
+  Serial.begin(115200);  // Console print: initialize serial communication
 
   stabilization.Init();
 
@@ -18,7 +18,7 @@ void loop() {
   previousTime = loopTime;
   loopTime = millis(); 
 
-  float deltaTime = (loopTime-previousTime)/1000;
+  float deltaTime = (loopTime-previousTime)/1000.0;
   stabilization.Angle(deltaTime);
 
   Serial.print("Loop time: ");

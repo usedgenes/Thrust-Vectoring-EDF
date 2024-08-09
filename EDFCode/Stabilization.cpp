@@ -77,6 +77,8 @@ void Stabilization::ComputeAttitude(float _angularPos[], float _angularSpeed[], 
     float pitchAngleDeg = RAD2DEG(-atan(accRaw[XAXIS] / accRaw[ZAXIS]));
     _angularPos[YAXIS] =
             ApplyComplementaryFilter(_angularPos[YAXIS], gyroRaw[YAXIS], pitchAngleDeg, _loopTime);
+
+    // Serial.println("Roll pos: ");
 }
 
 // Use complementary filter to merge gyro and accelerometer data
