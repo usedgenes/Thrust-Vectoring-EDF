@@ -7,7 +7,8 @@
 #include "ServosSpeedControl.h"
 #include "ControlLoop.h"
 #include "ControlLoopConstants.h"
-#include "CustomMath.h"
+
+#define RAD2DEG(angle) angle * 180 / PI
 
 class Stabilization {
   private:
@@ -41,7 +42,7 @@ class Stabilization {
     void Idle();
     void Angle(float _loopTimeSec);
     void ResetPID();
-
+    void VectorNormalize(float _vectorIn[], const int vectorSize);
     int GetServosMaxPosition() {
         return servosSpeedControl.GetServosMaxPosition();
     }

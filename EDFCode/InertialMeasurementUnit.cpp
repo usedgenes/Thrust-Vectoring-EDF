@@ -13,8 +13,6 @@ void InertialMeasurementUnit::Init() {
   setReports();
   ComputeAccelOffsets();
   ComputeGyroOffsets();
-
-  CustomSerialPrint::println("imu initialized");
 }
 
 void InertialMeasurementUnit::GetCorrectedAccelGyro(float _accMeasures[], float _gyroMeasures[]) {
@@ -144,18 +142,8 @@ bool InertialMeasurementUnit::ComputeAccelOffsets() {
 
 void InertialMeasurementUnit::setReports(void) {
   if (accelgyro.wasReset()) {
-    Serial.println("Setting desired reports");
-    if (accelgyro.enableRotationVector() == true) {
-      Serial.println(F("Rotation vector enabled"));
-      Serial.println(F("Output in form i, j, k, real, accuracy"));
-    } else {
-      Serial.println("Could not enable rotation vector");
-    }
-    delay(100);
-
     if (accelgyro.enableGyro() == true) {
       Serial.println(F("Gyro enabled"));
-      Serial.println(F("Output in form x, y, z, in radians per second"));
     } else {
       Serial.println("Could not enable gyro");
     }

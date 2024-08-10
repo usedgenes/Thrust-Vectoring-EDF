@@ -1,9 +1,7 @@
 #ifndef INERTIALMEASUREMENTUNIT_H_
 #define INERTIALMEASUREMENTUNIT_H_
 
-#include "Wire.h"
 #include "SparkFun_BNO08x_Arduino_Library.h"
-#include "CustomMath.h"
 #include "CustomSerialPrint.h"
 
 class InertialMeasurementUnit{

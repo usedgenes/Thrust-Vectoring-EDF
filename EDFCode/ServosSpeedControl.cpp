@@ -1,21 +1,20 @@
 #include "ServosSpeedControl.h"
 
-int ServosSpeedControl::currServo = -1;
-uint16_t ServosSpeedControl::servos[nbServos] = {0, 0, 0, 0};
-
 void ServosSpeedControl::Init() {
-  CustomSerialPrint::println("ServosSpeedControl initialized");
-  test = 1;
+  servos = new Servo[nbServos];
+  for(int i = 0; i < nbServos; i++) {
+    servos[i].attach(servoPorts[i]);
+  }
 }
 
 
-void ServosSpeedControl::UpdatePosition(int _id, float position) {
+void ServosSpeedControl::UpdatePosition(int i, float position) {
   if(position < MIN_POSITION) {
-    servos[_id] = MIN_POSITION;
+    servos[i].write(MIN_POSITION + servoStartingPosition[i]);
   }
   else if(position > MAX_POSITION) {
-    servos[_id] = MAX_POSITION;
+    servos[i].write(MAX_POSITION + servoStartingPosition[i]);
   } else {
-    servos[_id] = position;
+    servos[i].write(position + servoStartingPosition[i]);
   }
 }

@@ -20,13 +20,3 @@ float ControlLoop::ComputeCorrection(float _cmd, float _pos, float _loopTime) {
     return correction;
 }
 
-void ControlLoop::PrintGains(void) {
-    CustomSerialPrint::print("G: ");
-    CustomSerialPrint::print(constants.G);
-    CustomSerialPrint::print(" Kp: ");
-    CustomSerialPrint::print(constants.Kp);
-    CustomSerialPrint::print(" Kd: ");
-    CustomSerialPrint::print(constants.Kd);
-    CustomSerialPrint::print(" Ki: ");
-    CustomSerialPrint::println(constants.Ki);
-}
