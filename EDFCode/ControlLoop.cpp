@@ -9,11 +9,10 @@ void ControlLoop::Reset() {
     integrator = 0;
 }
 
-int ControlLoop::ComputeCorrection(float _cmd, float _pos, float _loopTime) {
+float ControlLoop::ComputeCorrection(float _cmd, float _pos, float _loopTime) {
     error = _cmd - _pos;
     integrator = integrator + error;
-    int correction =
-            (int)(constants.G * (constants.Kp * error + constants.Kd * ((error - errorPrev) / (_loopTime)) + constants.Ki * integrator));
+    float correction = (constants.G * (constants.Kp * error + constants.Kd * ((error - errorPrev) / (_loopTime)) + constants.Ki * integrator));
 
     errorPrev = error;
 

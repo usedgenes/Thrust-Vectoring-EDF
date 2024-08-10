@@ -12,8 +12,8 @@ class InertialMeasurementUnit{
     static const int SAMPLES_NB = 10;
     float AcceleroSensitivity = -1;
     float GyroSensitivity = -1;
-    int16_t gyroOffsets[AXIS_NB] = {0, 0, 0};
-    int16_t accOffsets[AXIS_NB] = {0, 0, 0};
+    float gyroOffsets[AXIS_NB] = {0, 0, 0};
+    float accOffsets[AXIS_NB] = {0, 0, 0};
     bool initialized = false;
     bool offsetComputed = false;
     SPIClass vspi = SPIClass(VSPI);

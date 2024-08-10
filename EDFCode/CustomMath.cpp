@@ -8,19 +8,19 @@ bool CustomMath::ComputeDelta(float _list[], int _size, int16_t *_delta) {
     int16_t maxVal = _list[0];
     int16_t minVal = _list[0];
 
-    CustomSerialPrint::println(F("Compute Delta : Samples: "));
+    // CustomSerialPrint::println(F("Compute Delta : Samples: "));
     for (int sample = 0; sample < _size; sample++) {
-        CustomSerialPrint::print(_list[sample]);
-        CustomSerialPrint::print("\t");
+        // CustomSerialPrint::print(_list[sample]);
+        // CustomSerialPrint::print("\t");
         if (_list[sample] > maxVal)
             maxVal = _list[sample];
         if (_list[sample] < minVal)
             minVal = _list[sample];
     }
-    CustomSerialPrint::println("");
+    // CustomSerialPrint::println("");
     (*_delta) = abs(maxVal - minVal);
-    CustomSerialPrint::print(F("Compute Delta: delta: "));
-    CustomSerialPrint::println(*_delta);
+    // CustomSerialPrint::print(F("Compute Delta: delta: "));
+    // CustomSerialPrint::println(*_delta);
     return true;
 }
 

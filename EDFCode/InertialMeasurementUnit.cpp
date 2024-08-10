@@ -18,15 +18,20 @@ void InertialMeasurementUnit::Init() {
 }
 
 void InertialMeasurementUnit::GetCorrectedAccelGyro(float _accMeasures[], float _gyroMeasures[]) {
-  setReports();
-  accelgyro.getSensorEvent();
   float accel[AXIS_NB] = { 0, 0, 0 };
   float speed[AXIS_NB] = { 0, 0, 0 };
-
+  while(accelgyro.getSensorEventID() != SENSOR_REPORTID_ACCELEROMETER) {
+    setReports();
+    accelgyro.getSensorEvent();
+  }
   accel[0] = accelgyro.getAccelX();
   accel[1] = accelgyro.getAccelY();
   accel[2] = accelgyro.getAccelZ();
   
+  while(accelgyro.getSensorEventID() != SENSOR_REPORTID_GYROSCOPE_CALIBRATED) {
+    setReports();
+    accelgyro.getSensorEvent();
+  }
   speed[0] = accelgyro.getGyroX();
   speed[1] = accelgyro.getGyroY();
   speed[2] = accelgyro.getGyroY();
@@ -34,10 +39,8 @@ void InertialMeasurementUnit::GetCorrectedAccelGyro(float _accMeasures[], float 
 
   // Correct raw data with offset
   for (int axis = 0; axis < AXIS_NB; axis++) {
-    _accMeasures[axis] =
-      static_cast<float>((accel[axis] - accOffsets[axis]) / AcceleroSensitivity);
-    _gyroMeasures[axis] =
-      static_cast<float>((speed[axis] - gyroOffsets[axis]) / GyroSensitivity);
+    _accMeasures[axis] = accel[axis] - accOffsets[axis];
+    _gyroMeasures[axis] = speed[axis] - gyroOffsets[axis];
   }
 }
 
@@ -55,6 +58,10 @@ bool InertialMeasurementUnit::ComputeGyroOffsets() {
   for (int sample = 0; sample < 10; sample++) {
     setReports();
     accelgyro.getSensorEvent();
+    while(accelgyro.getSensorEventID() != SENSOR_REPORTID_GYROSCOPE_CALIBRATED) {
+      setReports();
+      accelgyro.getSensorEvent();
+    }
     gyroRaw[0][sample] = accelgyro.getGyroX();
     gyroRaw[1][sample] = accelgyro.getGyroY();
     gyroRaw[2][sample] = accelgyro.getGyroZ();
@@ -69,16 +76,16 @@ bool InertialMeasurementUnit::ComputeGyroOffsets() {
 
   // Compute mean
   for (int axis = 0; axis < AXIS_NB; axis++) {
-    if (!CustomMath::ComputeMean(gyroRaw[axis], SAMPLES_NB, (10 * GyroSensitivity), &mean)) {
-      CustomSerialPrint::println(F("ERROR DURING SPEED OFFSETS COMPUTATION !!"));
-      return false;
+    float total = 0;
+    for(int sample = 0; sample < 10; sample++) {
+      total += gyroRaw[axis][sample];
     }
-    gyroOffsets[axis] = static_cast<int16_t>(mean);
+    gyroOffsets[axis] = total/10;
   }
 
   CustomSerialPrint::print(F("Gyroscope offsets Computed :"));
   for (int axis = 0; axis < AXIS_NB; axis++) {
-    CustomSerialPrint::print(gyroOffsets[axis] / GyroSensitivity);
+    CustomSerialPrint::print(gyroOffsets[axis]);
     CustomSerialPrint::print(" ");
   }
   CustomSerialPrint::println("(deg.s-1) ");
@@ -99,6 +106,10 @@ bool InertialMeasurementUnit::ComputeAccelOffsets() {
   for (int sample = 0; sample < 10; sample++) {
     setReports();
     accelgyro.getSensorEvent();
+    while(accelgyro.getSensorEventID() != SENSOR_REPORTID_ACCELEROMETER) {
+      setReports();
+      accelgyro.getSensorEvent();
+    }
     accRaw[0][sample] = accelgyro.getAccelX();
     accRaw[1][sample] = accelgyro.getAccelY();
     accRaw[2][sample] = accelgyro.getAccelZ();    
@@ -112,23 +123,22 @@ bool InertialMeasurementUnit::ComputeAccelOffsets() {
 
   // Mean computation
   for (int axis = 0; axis < AXIS_NB; axis++) {
-    if (!CustomMath::ComputeMean(accRaw[axis], SAMPLES_NB, (0.2 * AcceleroSensitivity),
-                                 &mean)) {
-      CustomSerialPrint::println(F("ERROR DURING ACCELERATION OFFSETS COMPUTATION !!"));
-      return false;
+    float total = 0;
+    for(int sample = 0; sample < 10; sample++) {
+      total += accRaw[axis][sample];
     }
-    accOffsets[axis] = static_cast<int16_t>(mean);
+    accOffsets[axis] = total/10;
   }
 
-  // Zacc is gravity, it should be 1G ie 4096 LSB/g at -+8g sensitivity
-  accOffsets[2] = accOffsets[2] - AcceleroSensitivity;
+  // offset for gravity
+  accOffsets[2] = accOffsets[2] - 9.8;
 
   CustomSerialPrint::print(F("Acceleration offsets Computed :"));
   for (int axis = 0; axis < AXIS_NB; axis++) {
-    CustomSerialPrint::print(accOffsets[axis] / AcceleroSensitivity);
+    CustomSerialPrint::print(accOffsets[axis]);
     CustomSerialPrint::print(" ");
   }
-  CustomSerialPrint::print("(m.s-2) ");
+  CustomSerialPrint::println("(m.s-2) ");
   return true;
 }
 

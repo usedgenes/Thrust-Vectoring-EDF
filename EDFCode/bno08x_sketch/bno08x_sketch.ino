@@ -63,26 +63,27 @@ void loop() {
   }
 
   if (myIMU.getSensorEvent() == true) {
-
+    if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
       float quatI = myIMU.getQuatI();
       float quatJ = myIMU.getQuatJ();
       float quatK = myIMU.getQuatK();
       float quatReal = myIMU.getQuatReal();
       float quatRadianAccuracy = myIMU.getQuatRadianAccuracy();
-      Serial.print("Rotation ");
-      Serial.print(quatI, 2);
-      Serial.print(F(","));
-      Serial.print(quatJ, 2);
-      Serial.print(F(","));
-      Serial.print(quatK, 2);
-      Serial.print(F(","));
-      Serial.print(quatReal, 2);
-      Serial.print(F(","));
-      Serial.print(quatRadianAccuracy, 2);
+      // Serial.print("Rotation ");
+      // Serial.print(quatI, 2);
+      // Serial.print(F(","));
+      // Serial.print(quatJ, 2);
+      // Serial.print(F(","));
+      // Serial.print(quatK, 2);
+      // Serial.print(F(","));
+      // Serial.print(quatReal, 2);
+      // Serial.print(F(","));
+      // Serial.print(quatRadianAccuracy, 2);
 
-      Serial.println();
+      // Serial.println();
     
-
+    }
+    if (myIMU.getSensorEventID() == SENSOR_REPORTID_GYROSCOPE_CALIBRATED) {
       float x1 = myIMU.getGyroX();
       float y1 = myIMU.getGyroY();
       float z1 = myIMU.getGyroZ();
@@ -95,8 +96,9 @@ void loop() {
       Serial.print(z1, 2);
 
       Serial.println();
+    }
     
-
+    if (myIMU.getSensorEventID() == SENSOR_REPORTID_ACCELEROMETER) {
       float x2= myIMU.getAccelX();
       float y2 = myIMU.getAccelY();
       float z2 = myIMU.getAccelZ();
@@ -108,7 +110,7 @@ void loop() {
       Serial.print(z2, 2);
 
       Serial.println();
-    
+    }
 
     delay(500);
 

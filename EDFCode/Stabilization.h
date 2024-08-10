@@ -14,7 +14,7 @@ class Stabilization {
     const float mixing = 0.5;
     static const int nbAxis = 3;
     enum AXIS { XAXIS = 0, YAXIS = 1, ZAXIS = 2 };
-    int rollServoPwr, pitchServoPwr, yawServoPwr = 0;
+    float rollServoPwr, pitchServoPwr, yawServoPwr = 0;
     float angularSpeedCurr[nbAxis] = {0.0, 0.0, 0.0}; // Teta speed (°/s) (only use gyro)
     float angularPosCurr[nbAxis] = {0.0, 0.0, 0.0};   // Teta position (°) (use gyro + accelero)
 
@@ -29,7 +29,6 @@ class Stabilization {
         */
     static constexpr float HighPassFilterCoeff = 0.9995;
 
-    uint16_t throttle = 0;
     ServosSpeedControl servosSpeedControl;
     ControlLoop rollPosPID_Angle, pitchPosPID_Angle;
     ControlLoop rollSpeedPID_Angle, pitchSpeedPID_Angle;
@@ -56,7 +55,6 @@ class Stabilization {
     void AttitudeComputeOffsets() {
         inertialMeasurementUnit.ComputeOffsets();
     }
-
 
   private:
     void PrintAngleModeParameters();
