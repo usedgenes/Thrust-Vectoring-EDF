@@ -2,7 +2,6 @@
 #include "Stabilization.h"
 
 void Stabilization::Init() {
-  servosSpeedControl.Init();
   inertialMeasurementUnit.Init();
 
   SetAngleModeControlLoopConfig();
@@ -57,25 +56,20 @@ void Stabilization::Angle(float _loopTimeSec) {
   SetServosPosition();
 }
 
-void Stabilization::GetCurrentAttitude() {
-  inertial
-}
 
-
-
-void Stabilization::SetServosPosition() {
-  servosSpeedControl.UpdatePosition(0, pitchServoPwr * mixing + rollServoPwr * mixing - yawServoPwr * mixing);
-  Serial.print("1 ");
-  Serial.println(pitchServoPwr * mixing + rollServoPwr * mixing - yawServoPwr * mixing);
-  servosSpeedControl.UpdatePosition(1, pitchServoPwr * mixing - rollServoPwr * mixing + yawServoPwr * mixing);
-  Serial.print("2 ");
-  Serial.println(pitchServoPwr * mixing - rollServoPwr * mixing - yawServoPwr * mixing);
-  servosSpeedControl.UpdatePosition(2, pitchServoPwr * mixing - rollServoPwr * mixing - yawServoPwr * mixing);
-  Serial.print("3 ");
-  Serial.println(pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
-  servosSpeedControl.UpdatePosition(3, pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
-  Serial.print("4 ");
-  Serial.println(pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
-}
+// void Stabilization::SetServosPosition() {
+//   servosSpeedControl.UpdatePosition(0, pitchServoPwr * mixing + rollServoPwr * mixing - yawServoPwr * mixing);
+//   Serial.print("1 ");
+//   Serial.println(pitchServoPwr * mixing + rollServoPwr * mixing - yawServoPwr * mixing);
+//   servosSpeedControl.UpdatePosition(1, pitchServoPwr * mixing - rollServoPwr * mixing + yawServoPwr * mixing);
+//   Serial.print("2 ");
+//   Serial.println(pitchServoPwr * mixing - rollServoPwr * mixing - yawServoPwr * mixing);
+//   servosSpeedControl.UpdatePosition(2, pitchServoPwr * mixing - rollServoPwr * mixing - yawServoPwr * mixing);
+//   Serial.print("3 ");
+//   Serial.println(pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
+//   servosSpeedControl.UpdatePosition(3, pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
+//   Serial.print("4 ");
+//   Serial.println(pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
+// }
 
 #endif

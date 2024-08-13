@@ -4,7 +4,6 @@
 #define STABILIZATION_H_
 
 #include "InertialMeasurementUnit.h"
-#include "ServosSpeedControl.h"
 #include "ControlLoop.h"
 #include "ControlLoopConstants.h"
 
@@ -30,7 +29,6 @@ class Stabilization {
         */
     static constexpr float HighPassFilterCoeff = 0.9995;
 
-    ServosSpeedControl servosSpeedControl;
     ControlLoop rollPosPID_Angle, pitchPosPID_Angle;
     ControlLoop rollSpeedPID_Angle, pitchSpeedPID_Angle;
     ControlLoop yawControlLoop;
@@ -42,21 +40,7 @@ class Stabilization {
     void Idle();
     void Angle(float _loopTimeSec);
     void ResetPID();
-    void GetCurrentAttitude();
     void VectorNormalize(float _vectorIn[], const int vectorSize);
-    int GetServosMaxPosition() {
-        return servosSpeedControl.GetServosMaxPosition();
-    }
-    int GetServosMinPosition() {
-        return servosSpeedControl.GetServosMinPosition();
-    }
-
-    bool AreAttitudeOffsetsComputed() {
-        return inertialMeasurementUnit.AreOffsetComputed();
-    }
-    void AttitudeComputeOffsets() {
-        inertialMeasurementUnit.ComputeOffsets();
-    }
 
   private:
     void PrintAngleModeParameters();
