@@ -42,6 +42,7 @@ class Stabilization {
     void Idle();
     void Angle(float _loopTimeSec);
     void ResetPID();
+    void GetCurrentAttitude();
     void VectorNormalize(float _vectorIn[], const int vectorSize);
     int GetServosMaxPosition() {
         return servosSpeedControl.GetServosMaxPosition();

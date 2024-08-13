@@ -14,9 +14,7 @@ class ControlLoop {
 
   public:
     void SetGains(Constants _constants);
-    void Reset();
     float ComputeCorrection(float _cmd, float _pos, float _loopTime);
-    void PrintGains(void);
 };
 
 #endif // CONTROLLOOP_H_

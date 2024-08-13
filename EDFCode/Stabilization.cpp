@@ -57,54 +57,11 @@ void Stabilization::Angle(float _loopTimeSec) {
   SetServosPosition();
 }
 
-float Stabilization::GetFilterTimeConstant(float _loopTimeSec) {
-  return ((HighPassFilterCoeff * _loopTimeSec) / (1 - HighPassFilterCoeff));
+void Stabilization::GetCurrentAttitude() {
+  inertial
 }
 
-// Compute attitude (pitch angle & speed and roll angle & speed) combining acc + gyro
-void Stabilization::ComputeAttitude(float _angularPos[], float _angularSpeed[], float _loopTime) {
-  float accRaw[nbAxis] = { 0, 0, 0 };
-  float gyroRaw[nbAxis] = { 0, 0, 0 };
 
-  // Get corrected data from gyro and accelero
-  inertialMeasurementUnit.GetCorrectedAccelGyro(accRaw, gyroRaw);
-
-  // Compute rotation speed using gyroscopes
-  for (int axis = 0; axis < nbAxis; axis++)
-    _angularSpeed[axis] = gyroRaw[axis];
-  
-  // VectorNormalize(accRaw, nbAxis);
-
-  // float rollAngleDeg = RAD2DEG(atan(accRaw[YAXIS] / accRaw[ZAXIS]));
-  // _angularPos[XAXIS] =
-  //   ApplyComplementaryFilter(_angularPos[XAXIS], gyroRaw[XAXIS], rollAngleDeg, _loopTime);
-
-  // float pitchAngleDeg = RAD2DEG(-atan(accRaw[XAXIS] / accRaw[ZAXIS]));
-  // _angularPos[YAXIS] =
-  //   ApplyComplementaryFilter(_angularPos[YAXIS], gyroRaw[YAXIS], pitchAngleDeg, _loopTime);
-
-  // CustomSerialPrint::print(F("Raw Gyro Data:"));
-  // for (int axis = 0; axis < 3; axis++) {
-  //   CustomSerialPrint::print(gyroRaw[axis]);
-  //   CustomSerialPrint::print(" ");
-  // }
-  // CustomSerialPrint::println("");
-
-  // CustomSerialPrint::print(F("Raw Accelerometer Data:"));
-  // for (int axis = 0; axis < 3; axis++) {
-  //   CustomSerialPrint::print(accRaw[axis]);
-  //   CustomSerialPrint::print(" ");
-  // }
-  // CustomSerialPrint::println("");
-}
-
-// Use complementary filter to merge gyro and accelerometer data
-// High pass filter on gyro, and low pass filter on accelerometer
-float Stabilization::ApplyComplementaryFilter(float _angularPos, float _gyroRaw,
-                                              float _angleDegrees, float _loopTime) {
-  return HighPassFilterCoeff * (_angularPos + _gyroRaw * _loopTime)
-         + (1 - HighPassFilterCoeff) * _angleDegrees;
-}
 
 void Stabilization::SetServosPosition() {
   servosSpeedControl.UpdatePosition(0, pitchServoPwr * mixing + rollServoPwr * mixing - yawServoPwr * mixing);
@@ -120,21 +77,5 @@ void Stabilization::SetServosPosition() {
   Serial.print("4 ");
   Serial.println(pitchServoPwr * mixing + rollServoPwr * mixing + yawServoPwr * mixing);
 }
-
-void Stabilization::VectorNormalize(float _vectorIn[], const int vectorSize) {
-    float sumSquares = 0.0;
-    for (int index = 0; index < vectorSize; index++)
-        sumSquares += _vectorIn[index] * _vectorIn[index];
-
-    float norm = sqrt(sumSquares);
-
-    if (norm > 0.0)
-        for (int index = 0; index < vectorSize; index++)
-            _vectorIn[index] = _vectorIn[index] / norm;
-    else
-        for (int index = 0; index < vectorSize; index++)
-            _vectorIn[index] = 0.0;
-}
-
 
 #endif
