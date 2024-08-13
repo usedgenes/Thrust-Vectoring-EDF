@@ -4,10 +4,16 @@ void InertialMeasurementUnit::Init() {
   vspi.begin(22, 23, 21, 33);  // Communication with MPU-6050 at 400KHz
   accelgyro.beginSPI(33, 25, 26, 1000000, vspi);
   setReports();
-  ComputeRotationOffsets();
+  ComputeEulerOffsets();
 }
 
-void InertialMeasurementUnit::GetCurrentEulerAngle(float& yaw, float& pitch, float& roll, float quaternions[]) {
+void InertialMeasurementUnit::GetAdjustedEulerAngle(float& yaw, float& pitch, float& roll) {
+  yaw = yaw - EulerOffsets[0];
+  pitch = pitch - EulerOffsets[1];
+  roll = roll - EulerOffsets[2];
+}
+
+void InertialMeasurementUnit::GetEulerAngle(float& yaw, float& pitch, float& roll, float quaternions[]) {
   float x = quaternions[0];
   float y = quaternions[1];
   float z = quaternions[2];
@@ -38,19 +44,32 @@ void InertialMeasurementUnit::GetCurrentEulerAngle(float& yaw, float& pitch, flo
   }
 }
 
-void InertialMeasurementUnit::ComputeRotationOffsets() {
+void InertialMeasurementUnit::ComputeEulerOffsets() {
   for (int i = 0; i < 25; i++) {
-    float output[4] = { 0, 0, 0, 0 };
-    getRotation(output);
-    rotationOffsets[0] += output[0];
-    rotationOffsets[1] += output[1];
-    rotationOffsets[2] += output[2];
-    rotationOffsets[3] += output[3];
+    float quaternions[4] = { 0, 0, 0, 0 };
+    getRotation(quaternions);
+    float yaw = 0;
+    float pitch = 0;
+    float roll = 0;
+    GetEulerAngle(yaw, pitch, roll, quaternions);
+    EulerOffsets[0] += yaw;
+    EulerOffsets[1] += pitch;
+    EulerOffsets[2] += roll;
+    // Serial.print(EulerOffsets[0]);
+    // Serial.print("\t");
+    // Serial.print(EulerOffsets[1]);
+    // Serial.print("\t");
+    // Serial.println(EulerOffsets[2]);
   }
-  rotationOffsets[0] = rotationOffsets[0] / 50;
-  rotationOffsets[1] = rotationOffsets[1] / 50;
-  rotationOffsets[2] = rotationOffsets[2] / 50;
-  rotationOffsets[3] = rotationOffsets[3] / 50;
+  EulerOffsets[0] = EulerOffsets[0] / 25;
+  EulerOffsets[1] = EulerOffsets[1] / 25;
+  EulerOffsets[2] = EulerOffsets[2] / 25;
+  Serial.print("Offsets: ");
+  Serial.print(EulerOffsets[0] * 57.29);
+  Serial.print("\t");
+  Serial.print(EulerOffsets[1] * 57.29);
+  Serial.print("\t");
+  Serial.println(EulerOffsets[2] * 57.29);
 }
 
 void InertialMeasurementUnit::getRotation(float output[]) {
@@ -58,7 +77,10 @@ void InertialMeasurementUnit::getRotation(float output[]) {
     setReports();
   }
   accelgyro.getSensorEvent();
-  while (accelgyro.getSensorEventID() != SENSOR_REPORTID_ROTATION_VECTOR) {}
+  while (accelgyro.getSensorEventID() != SENSOR_REPORTID_ROTATION_VECTOR) {
+    setReports();
+    accelgyro.getSensorEvent();
+  }
   output[0] = accelgyro.getQuatI();
   output[1] = accelgyro.getQuatJ();
   output[2] = accelgyro.getQuatK();
@@ -67,7 +89,6 @@ void InertialMeasurementUnit::getRotation(float output[]) {
 
 void InertialMeasurementUnit::setReports(void) {
   if (accelgyro.enableRotationVector() == true) {
-    Serial.println(F("Rotation vector enabled"));
   } else {
     Serial.println("Could not enable rotation vector");
   }

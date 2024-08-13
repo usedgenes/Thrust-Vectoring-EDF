@@ -6,16 +6,13 @@
 Stabilization stabilization;
 InertialMeasurementUnit imu;
 
-// #define PRINT_LOOP_TIME 0
-#define PRINT_EULER_ANGLE 0
-#define PRINT_QUATERNIONS 0
-
 unsigned long loopTime;
 unsigned long previousTime;
 
 void setup() {
   Serial.begin(115200);  // Console print: initialize serial communication
   imu.Init();
+  delay(500);
   // stabilization.Init();
 
   loopTime = 0;
@@ -27,41 +24,43 @@ void loop() {
   loopTime = millis();
 
   float output[] = { 0, 0, 0, 0 };
-
-#ifdef PRINT_QUATERNIONS
-  Serial.print(output[0]);
-  Serial.print("\t");
-  Serial.print(output[1]);
-  Serial.print("\t");
-  Serial.print(output[2]);
-  Serial.print("\t");
-  Serial.println(output[3]);
-#endif
-
   imu.getRotation(output);
+  // Serial.print("Rotation in quaternions: ");
+  // Serial.print(output[0]);
+  // Serial.print("\t");
+  // Serial.print(output[1]);
+  // Serial.print("\t");
+  // Serial.print(output[2]);
+  // Serial.print("\t");
+  // Serial.println(output[3]);
+
   float yaw = 0;
   float pitch = 0;
   float roll = 0;
-  imu.GetCurrentEulerAngle(yaw, pitch, yaw, output);
-
-#ifdef PRINT_EULER_ANGLE
-  Serial.print("Yaw: ");
-  Serial.print(yaw);
+  imu.GetEulerAngle(yaw, pitch, roll, output);
+  // Serial.print("Yaw: ");
+  // Serial.print(yaw * 57.29);
+  // Serial.print("\t");
+  // Serial.print("Pitch: ");
+  // Serial.print(pitch * 57.29);
+  // Serial.print("\t");
+  // Serial.print("Roll: ");
+  // Serial.println(roll * 57.29);
+  imu.GetAdjustedEulerAngle(yaw, pitch, roll);
+  Serial.print("Adjusted Yaw: ");
+  Serial.print(yaw * 57.29);
   Serial.print("\t");
-  Serial.print("Pitch: ");
-  Serial.print(pitch);
+  Serial.print("Adjusted Pitch: ");
+  Serial.print(pitch * 57.29);
   Serial.print("\t");
-  Serial.print("Roll: ");
-  Serial.println(roll);
-#endif
+  Serial.print("Adjusted Roll: ");
+  Serial.println(roll * 57.29);
 
   float deltaTime = (loopTime - previousTime) / 1000.0;
   // stabilization.Angle(deltaTime);
 
-#ifdef PRINT_LOOP_TIME
-  Serial.print("Loop time: ");
-  Serial.println(deltaTime);
-#endif
+  // Serial.print("Loop time: ");
+  // Serial.println(deltaTime);
 
-  delay(1000);
+  delay(100);
 }
