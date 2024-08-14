@@ -2,7 +2,6 @@
 #define INERTIALMEASUREMENTUNIT_H_
 
 #include "SparkFun_BNO08x_Arduino_Library.h"
-#include "CustomSerialPrint.h"
 
 class InertialMeasurementUnit {
 private:

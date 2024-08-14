@@ -4,14 +4,13 @@ void ControlLoop::SetGains(Constants _constants) {
     constants = _constants;
 }
 
-float ControlLoop::ComputeCorrection(float _cmd, float _pos, float _loopTime) {
-    error = _cmd - _pos;
-    integrator = integrator + error;
-    float correction = (constants.G * (constants.Kp * error + constants.Kd * ((error - errorPrev) / (_loopTime)) + constants.Ki * integrator));
+float ControlLoop::ComputeCorrection(float error, float loopTime) {
+    integrator += error*loopTime;
+    float derivative = (error - errorPrev) / loopTime;
+    float correction = (constants.Kp * error) + (constants.Ki * integrator) + (constants.Kd * derivative);
 
     errorPrev = error;
 
-    // Correction in us
     return correction;
 }
 

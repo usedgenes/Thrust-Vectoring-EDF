@@ -1,20 +1,23 @@
 #ifndef CONTROLLOOP_H_
 #define CONTROLLOOP_H_
 
-#include "ControlLoopConstants.h"
-#include "CustomSerialPrint.h"
+typedef struct {
+  float Kp;
+  float Kd;
+  float Ki;
+} Constants;
 
 class ControlLoop {
-  private:
-    Constants constants;
+private:
+  Constants constants;
+  
+  float error = 0;
+  float errorPrev = 0;
+  float integrator = 0;
 
-    float error = 0;
-    float errorPrev = 0;
-    float integrator = 0;
-
-  public:
-    void SetGains(Constants _constants);
-    float ComputeCorrection(float _cmd, float _pos, float _loopTime);
+public:
+  void SetGains(Constants _constants);
+  float ComputeCorrection(float error, float loopTime);
 };
 
-#endif // CONTROLLOOP_H_
+#endif  // CONTROLLOOP_H_

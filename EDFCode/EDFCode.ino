@@ -1,27 +1,32 @@
-#include "Stabilization.h"
 #include "InertialMeasurementUnit.h"
 #include "ControlLoop.h"
-#include "ControlLoopConstants.h"
+#include "ServoControl.h"
 
-Stabilization stabilization;
 InertialMeasurementUnit imu;
+ControlLoop yawPID, pitchPID, rollPID;
+Constants rollConstants = { .Kp = 50, .Kd = 0.5, .Ki = 0.0 };
+Constants pitchConstants = { .Kp = 50, .Kd = 0.0, .Ki = 0.0 };
+Constants yawConstants = { .Kp = 50, .Kd = 0.0, .Ki = 0.0 };
+ServoControl servos;
 
-unsigned long loopTime;
+unsigned long currentTime;
 unsigned long previousTime;
 
 void setup() {
-  Serial.begin(115200);  // Console print: initialize serial communication
+  Serial.begin(115200);
   imu.Init();
   delay(500);
-  // stabilization.Init();
-
-  loopTime = 0;
+  yawPID.SetGains(rollConstants);
+  pitchPID.SetGains(pitchConstants);
+  rollPID.SetGains(yawConstants);
+  servos.Init();
+  currentTime = 0;
 }
 
 // Main loop
 void loop() {
-  previousTime = loopTime;
-  loopTime = millis();
+  previousTime = currentTime;
+  currentTime = millis();
 
   float output[] = { 0, 0, 0, 0 };
   imu.getRotation(output);
@@ -56,11 +61,12 @@ void loop() {
   Serial.print("Adjusted Roll: ");
   Serial.println(roll * 57.29);
 
-  float deltaTime = (loopTime - previousTime) / 1000.0;
-  // stabilization.Angle(deltaTime);
+  float deltaTime = currentTime - previousTime;
 
-  // Serial.print("Loop time: ");
-  // Serial.println(deltaTime);
+  float yawCommand = yawPID.ComputeCorrection(yaw, deltaTime);
+  float pitchCommand = pitchPID.ComputeCorrection(pitch, deltaTime);
+  float rollCommand = rollPID.ComputeCorrection(roll, deltaTime);
 
+  pitchServoPwr * mixing - rollServoPwr * mixing - yawServoPwr * mixing
   delay(100);
 }
