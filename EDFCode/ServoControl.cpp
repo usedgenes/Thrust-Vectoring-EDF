@@ -2,11 +2,12 @@
 
 void ServoControl::Init() {
   for (int i = 0; i < 4; i++) {
+    servos[i].write(servoStartingPosition[i]);
     servos[i].attach(servoPins[i]);
   }
 }
 
-void ServoControl::WriteServoPosition(int servoNumber, int position) {
+float ServoControl::WriteServoPosition(int servoNumber, float position) {
   if (position > maxPosition) {
     position = maxPosition;
   }
@@ -14,4 +15,5 @@ void ServoControl::WriteServoPosition(int servoNumber, int position) {
     position = -maxPosition;
   }
   servos[servoNumber].write(servoStartingPosition[servoNumber] + position);
+  return position;
 }
