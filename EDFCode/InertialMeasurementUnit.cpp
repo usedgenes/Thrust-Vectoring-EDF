@@ -7,10 +7,10 @@ void InertialMeasurementUnit::Init() {
   ComputeEulerOffsets();
 }
 
-void InertialMeasurementUnit::GetAdjustedEulerAngle(float& yaw, float& pitch, float& roll) {
-  yaw = yaw - EulerOffsets[0];
-  pitch = pitch - EulerOffsets[1];
-  roll = roll - EulerOffsets[2];
+void InertialMeasurementUnit::GetAdjustedEulerAngle(float& yaw, float& pitch, float& roll, float& adjustedYaw, float& adjustedPitch, float& adjustedRoll) {
+  adjustedYaw = yaw - EulerOffsets[0];
+  adjustedPitch = pitch - EulerOffsets[1];
+  adjustedRoll = roll - EulerOffsets[2];
 }
 
 void InertialMeasurementUnit::GetEulerAngle(float& yaw, float& pitch, float& roll, float quaternions[]) {
