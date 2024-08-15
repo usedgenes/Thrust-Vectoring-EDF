@@ -11,14 +11,19 @@
 // #define PRINT_ADJUSTED_ANGLE 0
 #define PRINT_PID_COMMANDS 0
 // #define PRINT_SERVO_POSITION 0
+#define PRINT_BLUETOOTH_BMI088
+#define PRINT_BLUETOOTH_SERVO 0
+#define PRINT_BLUETOOTH_PID 0
 
 #define DEVICE_NAME "ESP_32"
 #define SERVICE_UUID "9a8ca9ef-e43f-4157-9fee-c37a3d7dc12d"
 #define SERVO_UUID "f74fb3de-61d1-4f49-bd77-419b61d188da"
 #define BMI088_UUID "56e48048-19da-4136-a323-d2f3e9cb2a5d"
+#define PID_UUID "a979c0ba-a2be-45e5-9d7b-079b06e06096"
 
 BLECharacteristic *pServo;
 BLECharacteristic *pBMI088;
+BLECharacteristic *pPID;
 
 InertialMeasurementUnit imu;
 ControlLoop yawPID, pitchPID, rollPID;
@@ -46,23 +51,36 @@ class ServoCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     String value = pCharacteristic->getValue();
     if (value.substring(0, 1) == "0") {
-      if (value.substring(1, 2) == "0") {
-        servos.WriteServoPosition(0, value.substring(2, value.length()).toInt());
-      } 
-      else if (value.substring(1, 2) == "1") {
-        servos.WriteServoPosition(1, value.substring(2, value.length()).toInt());
-      } 
-      else if (value.substring(1, 2) == "2") {
-        servos.WriteServoPosition(2, value.substring(2, value.length()).toInt());
-      } 
-      else if (value.substring(1, 2) == "3") {
-        servos.WriteServoPosition(3, value.substring(2, value.length()).toInt());
-      } 
-      else if (value.substring(1, 2) == "4") {
-        EDF.write(value.substring(2, value.length()).toInt());
-      }
+      servos.WriteServoPosition(0, value.substring(1, value.length()).toInt());
+#ifdef PRINT_BLUETOOTH_SERVO
+      Serial.print("Writing servo0: ");
+      Serial.println(value.substring(1, value.length()).toInt());
+#endif
+    } else if (value.substring(0, 1) == "1") {
+      servos.WriteServoPosition(1, value.substring(1, value.length()).toInt());
+#ifdef PRINT_BLUETOOTH_SERVO
+      Serial.print("Writing servo1: ");
+      Serial.println(value.substring(1, value.length()).toInt());
+#endif
+    } else if (value.substring(0, 1) == "2") {
+      servos.WriteServoPosition(2, value.substring(1, value.length()).toInt());
+#ifdef PRINT_BLUETOOTH_SERVO
+      Serial.print("Writing servo2: ");
+      Serial.println(value.substring(1, value.length()).toInt());
+#endif
+    } else if (value.substring(0, 1) == "3") {
+      servos.WriteServoPosition(3, value.substring(1, value.length()).toInt());
+#ifdef PRINT_BLUETOOTH_SERVO
+      Serial.print("Writing servo3: ");
+      Serial.println(value.substring(1, value.length()).toInt());
+#endif
+    } else if (value.substring(0, 1) == "4") {
+      EDF.write(value.substring(1, value.length()).toInt());
+#ifdef PRINT_BLUETOOTH_SERVO
+      Serial.print("Writing EDF: ");
+      Serial.println(value.substring(1, value.length()).toInt());
+#endif
     }
-    Serial.println(value);
   }
 };
 
@@ -78,16 +96,71 @@ class BMI088Callbacks : public BLECharacteristicCallbacks {
       imu.GetEulerAngle(yaw, pitch, roll, output);
       imu.GetAdjustedEulerAngle(yaw, pitch, roll);
 
-      pCharacteristic->setValue("1" + String(yaw, 2));
+      pCharacteristic->setValue("7" + String(yaw, 2));
       pCharacteristic->notify();
 
-      pCharacteristic->setValue("2" + String(pitch));
+      pCharacteristic->setValue("8" + String(pitch));
       pCharacteristic->notify();
 
-      pCharacteristic->setValue("3" + String(roll));
+      pCharacteristic->setValue("9" + String(roll));
       pCharacteristic->notify();
+#ifdef PRINT_BLUETOOTH_BMI088
+      Serial.print("Writing bluetooth:");
+      Serial.print("\t");
+      Serial.print(yaw);
+      Serial.print("\t");
+      Serial.print(pitch);
+      Serial.print("\t");
+      Serial.print(roll);
+#endif
+    }
+  }
+};
 
-      Serial.println("notifying bmi088");
+class PIDCallbacks : public BLECharacteristicCallbacks {
+  void onWrite(BLECharacteristic *pCharacteristic) {
+    String value = pCharacteristic->getValue();
+    if (value.substring(0, 1) == "0") {
+      rollConstants.Kp = value.substring(1, value.indexOf(',')).toFloat();
+      rollConstants.Ki = value.substring(value.indexOf(','), value.indexOf('.')).toFloat();
+      rollConstants.Kd = value.substring(value.indexOf('.'), value.length()).toFloat();
+#ifdef PRINT_BLUETOOTH_PID
+      Serial.print("Roll: ");
+      Serial.print("\t");
+      Serial.print(rollConstants.Kp);
+      Serial.print("\t");
+      Serial.print(rollConstants.Ki);
+      Serial.print("\t");
+      Serial.print(rollConstants.Kd);
+#endif
+    }
+    if (value.substring(0, 1) == "1") {
+      pitchConstants.Kp = value.substring(1, value.indexOf(',')).toFloat();
+      pitchConstants.Ki = value.substring(value.indexOf(','), value.indexOf('.')).toFloat();
+      pitchConstants.Kd = value.substring(value.indexOf('.'), value.length()).toFloat();
+#ifdef PRINT_BLUETOOTH_PID
+      Serial.print("Pitch: ");
+      Serial.print("\t");
+      Serial.print(pitchConstants.Kp);
+      Serial.print("\t");
+      Serial.print(pitchConstants.Ki);
+      Serial.print("\t");
+      Serial.print(pitchConstants.Kd);
+#endif
+    }
+    if (value.substring(0, 1) == "2") {
+      yawConstants.Kp = value.substring(1, value.indexOf(',')).toFloat();
+      yawConstants.Ki = value.substring(value.indexOf(','), value.indexOf('.')).toFloat();
+      yawConstants.Kd = value.substring(value.indexOf('.'), value.length()).toFloat();
+#ifdef PRINT_BLUETOOTH_PID
+      Serial.print("Yaw: ");
+      Serial.print("\t");
+      Serial.print(yawConstants.Kp);
+      Serial.print("\t");
+      Serial.print(yawConstants.Ki);
+      Serial.print("\t");
+      Serial.print(yawConstants.Kd);
+#endif
     }
   }
 };
@@ -110,6 +183,9 @@ void setup() {
 
   pBMI088 = pService->createCharacteristic(BMI088_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_WRITE);
   pBMI088->setCallbacks(new BMI088Callbacks());
+
+  pPID = pService->createCharacteristic(PID_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_WRITE);
+  pPID->setCallbacks(new PIDCallbacks());
 
   pService->start();
 
