@@ -70,7 +70,7 @@ void loop() {
     servoT.toCharArray(carray5, sizeof(carray5));
     n4 = atoi(carray2);
     
-    edf.w             rite(n0);
+    edf.write(n0);
     servoTop.write(118+n1);
     servoRight.write(82+n2);
     servoBottom.write(100+n3);
