@@ -4,6 +4,7 @@ void ServoControl::Init() {
   for (int i = 0; i < 4; i++) {
     servos[i].write(servoStartingPosition[i]);
     servos[i].attach(servoPins[i]);
+    servos[i].write(servoStartingPosition[i]);
   }
 }
 

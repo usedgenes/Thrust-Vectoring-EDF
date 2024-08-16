@@ -143,6 +143,9 @@ class BMI088Callbacks : public BLECharacteristicCallbacks {
       Serial.println(adjustedRoll);
 #endif
     }
+    if (value.substring(0, 1) == "1") {
+      imu.ComputeEulerOffsets();
+    }
   }
 };
 
@@ -151,8 +154,8 @@ class PIDCallbacks : public BLECharacteristicCallbacks {
     String value = pCharacteristic->getValue();
     if (value.substring(0, 1) == "0") {
       rollConstants.Kp = value.substring(1, value.indexOf(',')).toFloat();
-      rollConstants.Ki = value.substring(value.indexOf(','), value.indexOf('!')).toFloat();
-      rollConstants.Kd = value.substring(value.indexOf('!'), value.length()).toFloat();
+      rollConstants.Ki = value.substring(value.indexOf(',') + 1, value.indexOf('!')).toFloat();
+      rollConstants.Kd = value.substring(value.indexOf('!') + 1, value.length()).toFloat();
 #ifdef PRINT_BLUETOOTH_PID
       Serial.print("Roll: ");
       Serial.print("\t");
@@ -165,8 +168,8 @@ class PIDCallbacks : public BLECharacteristicCallbacks {
     }
     if (value.substring(0, 1) == "1") {
       pitchConstants.Kp = value.substring(1, value.indexOf(',')).toFloat();
-      pitchConstants.Ki = value.substring(value.indexOf(','), value.indexOf('!')).toFloat();
-      pitchConstants.Kd = value.substring(value.indexOf('!'), value.length()).toFloat();
+      pitchConstants.Ki = value.substring(value.indexOf(',') + 1, value.indexOf('!')).toFloat();
+      pitchConstants.Kd = value.substring(value.indexOf('!') + 1, value.length()).toFloat();
 #ifdef PRINT_BLUETOOTH_PID
       Serial.print("Pitch: ");
       Serial.print("\t");
@@ -179,8 +182,8 @@ class PIDCallbacks : public BLECharacteristicCallbacks {
     }
     if (value.substring(0, 1) == "2") {
       yawConstants.Kp = value.substring(1, value.indexOf(',')).toFloat();
-      yawConstants.Ki = value.substring(value.indexOf(','), value.indexOf('!')).toFloat();
-      yawConstants.Kd = value.substring(value.indexOf('!'), value.length()).toFloat();
+      yawConstants.Ki = value.substring(value.indexOf(',') + 1, value.indexOf('!')).toFloat();
+      yawConstants.Kd = value.substring(value.indexOf('!') + 1, value.length()).toFloat();
 #ifdef PRINT_BLUETOOTH_PID
       Serial.print("Yaw: ");
       Serial.print("\t");
@@ -241,14 +244,14 @@ void setup() {
 
   pAdvertising->start();
 
-  imu.Init();
-  delay(500);
   yawPID.SetGains(rollConstants);
   pitchPID.SetGains(pitchConstants);
   rollPID.SetGains(yawConstants);
-  // servos.Init();
+  servos.Init();
+  imu.Init();
   currentTime = 0;
   EDF.attach(15);
+  EDF.write(50);
 }
 
 // Main loop
@@ -313,10 +316,10 @@ void loop() {
   Serial.println(rollCommand);
 #endif
 
-  servo0pos = servos.WriteServoPosition(0, yawCommand * mixing - pitch * mixing - roll * mixing);
-  servo1pos = servos.WriteServoPosition(1, yawCommand * mixing - pitch * mixing - roll * mixing);
-  servo2pos = servos.WriteServoPosition(2, yawCommand * mixing - pitch * mixing - roll * mixing);
-  servo3pos = servos.WriteServoPosition(3, yawCommand * mixing - pitch * mixing - roll * mixing);
+  // servo0pos = servos.WriteServoPosition(0, yawCommand * mixing - pitch * mixing - roll * mixing);
+  // servo1pos = servos.WriteServoPosition(1, yawCommand * mixing - pitch * mixing - roll * mixing);
+  // servo2pos = servos.WriteServoPosition(2, yawCommand * mixing - pitch * mixing - roll * mixing);
+  // servo3pos = servos.WriteServoPosition(3, yawCommand * mixing - pitch * mixing - roll * mixing);
 
 #ifdef PRINT_SERVO_POSITION
   Serial.print("Servo 0: ");
