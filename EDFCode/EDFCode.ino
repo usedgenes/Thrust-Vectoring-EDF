@@ -18,13 +18,13 @@
 #define DEVICE_NAME "ESP_32"
 #define SERVICE_UUID "9a8ca9ef-e43f-4157-9fee-c37a3d7dc12d"
 #define SERVO_UUID "f74fb3de-61d1-4f49-bd77-419b61d188da"
-#define BMI088_UUID "56e48048-19da-4136-a323-d2f3e9cb2a5d"
+#define BNO08X_UUID "56e48048-19da-4136-a323-d2f3e9cb2a5d"
 #define PID_UUID "a979c0ba-a2be-45e5-9d7b-079b06e06096"
 #define RESET_UUID "fb02a2fa-2a86-4e95-8110-9ded202af76b"
 
 
 BLECharacteristic *pServo;
-BLECharacteristic *pBMI088;
+BLECharacteristic *pBNO08X;
 BLECharacteristic *pPID;
 BLECharacteristic *pReset;
 
@@ -35,6 +35,8 @@ Constants pitchConstants = { .Kp = 50, .Kd = 0.0, .Ki = 0.0 };
 Constants yawConstants = { .Kp = 50, .Kd = 0.0, .Ki = 0.0 };
 ServoControl servos;
 Servo EDF;
+
+bool pidOn = true;
 
 unsigned long currentTime;
 unsigned long previousTime;
@@ -120,7 +122,7 @@ class ServoCallbacks : public BLECharacteristicCallbacks {
   }
 };
 
-class BMI088Callbacks : public BLECharacteristicCallbacks {
+class BNO08XCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     String value = pCharacteristic->getValue();
     if (value.substring(0, 1) == "0") {
@@ -202,6 +204,15 @@ class PIDCallbacks : public BLECharacteristicCallbacks {
       pCharacteristic->setValue("6" + String(rollCommand, 3));
       pCharacteristic->notify();
     }
+
+    if(value.substring(0, 1) == "7") {
+      if(pidOn == true) {
+        pidOn = false;
+      }
+      else {
+        pidOn = true;
+      }
+    }
   }
 };
 
@@ -221,8 +232,8 @@ void setup() {
   pServo = pService->createCharacteristic(SERVO_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_WRITE);
   pServo->setCallbacks(new ServoCallbacks());
 
-  pBMI088 = pService->createCharacteristic(BMI088_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_WRITE);
-  pBMI088->setCallbacks(new BMI088Callbacks());
+  pBNO08X = pService->createCharacteristic(BNO08X_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_WRITE);
+  pBNO08X->setCallbacks(new BNO08XCallbacks());
 
   pPID = pService->createCharacteristic(PID_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_WRITE);
   pPID->setCallbacks(new PIDCallbacks());
@@ -258,6 +269,7 @@ void setup() {
 void loop() {
   previousTime = currentTime;
   currentTime = millis();
+  float deltaTime = currentTime - previousTime;
 
   float output[] = { 0, 0, 0, 0 };
   imu.getRotation(output);
@@ -299,11 +311,10 @@ void loop() {
   Serial.print("Adjusted Roll: ");
   Serial.println(roll * 57.29);
 #endif
-  float deltaTime = currentTime - previousTime;
 
-  yawCommand = yawPID.ComputeCorrection(yaw, deltaTime);
-  pitchCommand = pitchPID.ComputeCorrection(pitch, deltaTime);
-  rollCommand = rollPID.ComputeCorrection(roll, deltaTime);
+  yawCommand = yawPID.ComputeCorrection(adjustedYaw, deltaTime);
+  pitchCommand = pitchPID.ComputeCorrection(adjustedPitch, deltaTime);
+  rollCommand = rollPID.ComputeCorrection(adjustedRoll, deltaTime);
 
 #ifdef PRINT_PID_COMMANDS
   Serial.print("Yaw: ");
@@ -316,10 +327,12 @@ void loop() {
   Serial.println(rollCommand);
 #endif
 
-  // servo0pos = servos.WriteServoPosition(0, yawCommand * mixing - pitch * mixing - roll * mixing);
-  // servo1pos = servos.WriteServoPosition(1, yawCommand * mixing - pitch * mixing - roll * mixing);
-  // servo2pos = servos.WriteServoPosition(2, yawCommand * mixing - pitch * mixing - roll * mixing);
-  // servo3pos = servos.WriteServoPosition(3, yawCommand * mixing - pitch * mixing - roll * mixing);
+  if (pidOn) {
+    servo0pos = servos.WriteServoPosition(0, pitchCommand * mixing - yawCommand * mixing);
+    servo1pos = servos.WriteServoPosition(1, rollCommand * mixing - yawCommand * mixing);
+    servo2pos = servos.WriteServoPosition(2, pitchCommand * mixing - yawCommand * mixing);
+    servo3pos = servos.WriteServoPosition(3, rollCommand * mixing - yawCommand * mixing);
+  }
 
 #ifdef PRINT_SERVO_POSITION
   Serial.print("Servo 0: ");

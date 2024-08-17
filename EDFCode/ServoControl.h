@@ -24,4 +24,4 @@ public:
   float WriteServoPosition(int servoNumber, float position);
 };
 
-#endif  // INERTIALMEASUREMENTUNIT_H_
+#endif  
