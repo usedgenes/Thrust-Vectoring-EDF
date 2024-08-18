@@ -7,17 +7,17 @@ void InertialMeasurementUnit::Init() {
   ComputeEulerOffsets();
 }
 
-void InertialMeasurementUnit::GetAdjustedEulerAngle(float& yaw, float& pitch, float& roll, float& adjustedYaw, float& adjustedPitch, float& adjustedRoll) {
-  adjustedYaw = yaw - EulerOffsets[0];
-  adjustedPitch = pitch - EulerOffsets[1];
-  adjustedRoll = roll - EulerOffsets[2];
+void InertialMeasurementUnit::GetAdjustedEulerAngle(float input[], float output[]) {
+  output[0] = input[0] - EulerOffsets[0];
+  output[1] = input[1] - EulerOffsets[1];
+  output[2] = input[2] - EulerOffsets[2];
 }
 
-void InertialMeasurementUnit::GetEulerAngle(float& yaw, float& pitch, float& roll, float quaternions[]) {
-  float x = quaternions[0];
-  float y = quaternions[1];
-  float z = quaternions[2];
-  float w = quaternions[3];
+void InertialMeasurementUnit::GetEulerAngle(float input[], float output[]) {
+  float x = input[0];
+  float y = input[1];
+  float z = input[2];
+  float w = input[3];
 
   const double w2 = w * w;
   const double x2 = x * x;
@@ -28,19 +28,19 @@ void InertialMeasurementUnit::GetEulerAngle(float& yaw, float& pitch, float& rol
   const double eps = 1e-7;
   const double pi = 3.14159265358979323846;
   if (abcd > (0.5 - eps) * unitLength) {
-    yaw = 2 * atan2(y, w);
-    pitch = pi;
-    roll = 0;
+    output[0] = 2 * atan2(y, w);
+    output[1] = pi;
+    output[2] = 0;
   } else if (abcd < (-0.5 + eps) * unitLength) {
-    yaw = -2 * ::atan2(y, w);
-    pitch = -pi;
-    roll = 0;
+    output[0] = -2 * ::atan2(y, w);
+    output[1] = -pi;
+    output[2] = 0;
   } else {
     const double adbc = w * z - x * y;
     const double acbd = w * y - x * z;
-    yaw = ::atan2(2 * adbc, 1 - 2 * (z2 + x2));
-    pitch = ::asin(2 * abcd / unitLength);
-    roll = ::atan2(2 * acbd, 1 - 2 * (y2 + x2));
+    output[0] = ::atan2(2 * adbc, 1 - 2 * (z2 + x2));
+    output[1] = ::asin(2 * abcd / unitLength);
+    output[2] = ::atan2(2 * acbd, 1 - 2 * (y2 + x2));
   }
 }
 
@@ -48,13 +48,11 @@ void InertialMeasurementUnit::ComputeEulerOffsets() {
   for (int i = 0; i < 25; i++) {
     float quaternions[4] = { 0, 0, 0, 0 };
     getRotation(quaternions);
-    float yaw = 0;
-    float pitch = 0;
-    float roll = 0;
-    GetEulerAngle(yaw, pitch, roll, quaternions);
-    EulerOffsets[0] += yaw;
-    EulerOffsets[1] += pitch;
-    EulerOffsets[2] += roll;
+    float eulerAngle[3];
+    GetEulerAngle(eulerAngle, quaternions);
+    EulerOffsets[0] += eulerAngle[0];
+    EulerOffsets[1] += eulerAngle[1];
+    EulerOffsets[2] += eulerAngle[2];
     // Serial.print(EulerOffsets[0]);
     // Serial.print("\t");
     // Serial.print(EulerOffsets[1]);

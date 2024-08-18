@@ -15,8 +15,8 @@ public:
   void ComputeEulerOffsets();
   void getRotation(float output[]);
   void GetCorrectedAccelGyro(float rotation[]);
-  void GetAdjustedEulerAngle(float& yaw, float& pitch, float& roll, float& adjustedYaw, float& adjustedPitch, float& adjustedRoll);
-  void GetEulerAngle(float& yaw, float& pitch, float& roll, float quaternions[]);
+  void GetAdjustedEulerAngle(float input[], float output[]);
+  void GetEulerAngle(float input[], float output[]);
 };
 
 #endif  // INERTIALMEASUREMENTUNIT_H_

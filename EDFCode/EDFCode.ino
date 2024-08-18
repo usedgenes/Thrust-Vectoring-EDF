@@ -6,11 +6,11 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 
-// #define PRINT_QUATERNIONS 0
-// #define PRINT_RAW_ANGLE 0
-// #define PRINT_ADJUSTED_ANGLE 0
-// #define PRINT_PID_COMMANDS 0
-// #define PRINT_SERVO_POSITION 0
+#define PRINT_QUATERNIONS 0
+#define PRINT_RAW_ANGLE 0
+#define PRINT_ADJUSTED_ANGLE 0
+#define PRINT_PID_COMMANDS 0
+#define PRINT_SERVO_POSITION 0
 #define PRINT_BLUETOOTH_BMI088
 #define PRINT_BLUETOOTH_SERVO 0
 #define PRINT_BLUETOOTH_PID 0
@@ -18,7 +18,7 @@
 #define DEVICE_NAME "ESP_32"
 #define SERVICE_UUID "9a8ca9ef-e43f-4157-9fee-c37a3d7dc12d"
 #define SERVO_UUID "f74fb3de-61d1-4f49-bd77-419b61d188da"
-#define BNO08X_UUID "56e48048-19da-4136-a323-d2f3e9cb2a5d"
+#define BNO08X_UUID "c91b34b8-90f3-4fee-89f7-58c108ab198f"
 #define PID_UUID "a979c0ba-a2be-45e5-9d7b-079b06e06096"
 #define RESET_UUID "fb02a2fa-2a86-4e95-8110-9ded202af76b"
 
@@ -36,18 +36,9 @@ Constants yawConstants = { .Kp = 50, .Kd = 0.0, .Ki = 0.0 };
 ServoControl servos;
 Servo EDF;
 
-bool pidOn = true;
+bool bluetoothServoControl = false;
 
-unsigned long currentTime;
 unsigned long previousTime;
-float mixing = 0.5;
-float servo0pos = 0;
-float servo1pos = 0;
-float servo2pos = 0;
-float servo3pos = 0;
-float adjustedYaw = 0;
-float adjustedPitch = 0;
-float adjustedRoll = 0;
 float yawCommand = 0;
 float pitchCommand = 0;
 float rollCommand = 0;
@@ -65,7 +56,6 @@ class MyServerCallbacks : public BLEServerCallbacks {
   }
 };
 
-
 class ResetCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     String value = pCharacteristic->getValue();
@@ -80,34 +70,14 @@ class ServoCallbacks : public BLECharacteristicCallbacks {
     String value = pCharacteristic->getValue();
     if (value.substring(0, 1) == "0") {
       servos.WriteServoPosition(0, value.substring(1, value.length()).toInt());
-#ifdef PRINT_BLUETOOTH_SERVO
-      Serial.print("Writing servo0: ");
-      Serial.println(value.substring(1, value.length()).toInt());
-#endif
     } else if (value.substring(0, 1) == "1") {
       servos.WriteServoPosition(1, value.substring(1, value.length()).toInt());
-#ifdef PRINT_BLUETOOTH_SERVO
-      Serial.print("Writing servo1: ");
-      Serial.println(value.substring(1, value.length()).toInt());
-#endif
     } else if (value.substring(0, 1) == "2") {
       servos.WriteServoPosition(2, value.substring(1, value.length()).toInt());
-#ifdef PRINT_BLUETOOTH_SERVO
-      Serial.print("Writing servo2: ");
-      Serial.println(value.substring(1, value.length()).toInt());
-#endif
     } else if (value.substring(0, 1) == "3") {
       servos.WriteServoPosition(3, value.substring(1, value.length()).toInt());
-#ifdef PRINT_BLUETOOTH_SERVO
-      Serial.print("Writing servo3: ");
-      Serial.println(value.substring(1, value.length()).toInt());
-#endif
     } else if (value.substring(0, 1) == "4") {
       EDF.write(value.substring(1, value.length()).toInt());
-#ifdef PRINT_BLUETOOTH_SERVO
-      Serial.print("Writing EDF: ");
-      Serial.println(value.substring(1, value.length()).toInt());
-#endif
     }
     if (value.substring(0, 1) == "2") {
       pCharacteristic->setValue("3" + String(servo0pos));
@@ -206,11 +176,11 @@ class PIDCallbacks : public BLECharacteristicCallbacks {
     }
 
     if(value.substring(0, 1) == "7") {
-      if(pidOn == true) {
-        pidOn = false;
+      if(bluetoothServoControl == true) {
+        bluetoothServoControl = false;
       }
       else {
-        pidOn = true;
+        bluetoothServoControl = true;
       }
     }
   }
@@ -260,74 +230,72 @@ void setup() {
   rollPID.SetGains(yawConstants);
   servos.Init();
   imu.Init();
-  currentTime = 0;
   EDF.attach(15);
   EDF.write(50);
 }
 
 // Main loop
 void loop() {
-  previousTime = currentTime;
-  currentTime = millis();
-  float deltaTime = currentTime - previousTime;
+  float deltaTime = millis() - previousTime;
+  previousTime = millis();
+  Serial.print("Time: ");
+  Serial.println(deltaTime);
 
-  float output[] = { 0, 0, 0, 0 };
-  imu.getRotation(output);
+  float quaternions[4];
+  imu.getRotation(quaternions);
 #ifdef PRINT_QUATERNIONS
   Serial.print("Rotation in quaternions: ");
-  Serial.print(output[0]);
+  Serial.print(quaternions[0]);
   Serial.print("\t");
-  Serial.print(output[1]);
+  Serial.print(quaternions[1]);
   Serial.print("\t");
-  Serial.print(output[2]);
+  Serial.print(quaternions[2]);
   Serial.print("\t");
-  Serial.println(output[3]);
+  Serial.println(quaternions[3]);
 #endif
-  float yaw = 0;
-  float pitch = 0;
-  float roll = 0;
-  imu.GetEulerAngle(yaw, pitch, roll, output);
+  float eulerAngle[3];
+  imu.GetEulerAngle(quaternions, eulerAngle);
 
 #ifdef PRINT_RAW_ANGLE
   Serial.print("Yaw: ");
-  Serial.print(yaw * 57.29);
+  Serial.print(eulerAngle[0] * 57.29);
   Serial.print("\t");
   Serial.print("Pitch: ");
-  Serial.print(pitch * 57.29);
+  Serial.print(eulerAngle[1] * 57.29);
   Serial.print("\t");
   Serial.print("Roll: ");
-  Serial.println(roll * 57.29);
+  Serial.println(eulerAngle[2] * 57.29);
 #endif
 
-  imu.GetAdjustedEulerAngle(yaw, pitch, roll, adjustedYaw, adjustedPitch, adjustedRoll);
+  float adjustedEulerAngle[3];
+  imu.GetAdjustedEulerAngle(eulerAngle, adjustedEulerAngle);
 
 #ifdef PRINT_ADJUSTED_ANGLE
   Serial.print("Adjusted Yaw: ");
-  Serial.print(yaw * 57.29);
+  Serial.print(adjustedEulerAngle[0] * 57.29);
   Serial.print("\t");
   Serial.print("Adjusted Pitch: ");
-  Serial.print(pitch * 57.29);
+  Serial.print(adjustedEulerAngle[1] * 57.29);
   Serial.print("\t");
   Serial.print("Adjusted Roll: ");
-  Serial.println(roll * 57.29);
+  Serial.println(adjustedEulerAngle[2] * 57.29);
 #endif
 
-  yawCommand = yawPID.ComputeCorrection(adjustedYaw, deltaTime);
-  pitchCommand = pitchPID.ComputeCorrection(adjustedPitch, deltaTime);
-  rollCommand = rollPID.ComputeCorrection(adjustedRoll, deltaTime);
+  yawCommand = yawPID.ComputeCorrection(adjustedEulerAngle[0], deltaTime);
+  pitchCommand = pitchPID.ComputeCorrection(adjustedEulerAngle[1], deltaTime);
+  rollCommand = rollPID.ComputeCorrection(adjustedEulerAngle[2], deltaTime);
 
 #ifdef PRINT_PID_COMMANDS
-  Serial.print("Yaw: ");
+  Serial.print("Yaw Command: ");
   Serial.print(yawCommand);
   Serial.print("\t");
-  Serial.print("Pitch: ");
+  Serial.print("Pitch Command: ");
   Serial.print(pitchCommand);
   Serial.print("\t");
-  Serial.print("Roll: ");
+  Serial.print("Roll Command: ");
   Serial.println(rollCommand);
 #endif
-
-  if (pidOn) {
+  if(!bluetoothServoControl) {
     servo0pos = servos.WriteServoPosition(0, pitchCommand * mixing - yawCommand * mixing);
     servo1pos = servos.WriteServoPosition(1, rollCommand * mixing - yawCommand * mixing);
     servo2pos = servos.WriteServoPosition(2, pitchCommand * mixing - yawCommand * mixing);
