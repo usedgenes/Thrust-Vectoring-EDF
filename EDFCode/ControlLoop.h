@@ -8,8 +8,6 @@ typedef struct {
 } Constants;
 
 class ControlLoop {
-#define MAX_PID_OUTPUT 1000
-#define MIN_PID_OUTPUT -1000
 private:
   Constants constants;
 
