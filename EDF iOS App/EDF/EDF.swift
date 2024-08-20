@@ -9,9 +9,12 @@ import Foundation
 import SwiftUICharts
 
 class EDF : ObservableObject {
+    @Published var loopTime : Int = 0
+    
     @Published var yawData : [LineChartDataPoint] = []
     @Published var pitchData : [LineChartDataPoint] = []
     @Published var rollData : [LineChartDataPoint] = []
+    @Published var yawVelocityData : [LineChartDataPoint] = []
     
     @Published var servo0pos : [LineChartDataPoint] = []
     @Published var servo1pos : [LineChartDataPoint] = []
@@ -21,8 +24,15 @@ class EDF : ObservableObject {
     @Published var yawPIDCommand : [LineChartDataPoint] = []
     @Published var pitchPIDCommand : [LineChartDataPoint] = []
     @Published var rollPIDCommand : [LineChartDataPoint] = []
-
-
+    
+    func setLoopTime(loopTime : Int) {
+        self.loopTime = loopTime
+    }
+    
+    func addYawVelocity(yawVelocity: Float) {
+        yawVelocityData.append(LineChartDataPoint(value: Double(yawVelocity * 57.29), xAxisLabel: " ", description: "Yaw"))
+    }
+    
     func addYaw(yaw: Float) {
         yawData.append(LineChartDataPoint(value: Double(yaw * 57.29), xAxisLabel: " ", description: "Yaw"))
     }
@@ -84,6 +94,13 @@ class EDF : ObservableObject {
                            style: LineStyle(lineColour: ColourStyle(colour: .blue), lineType: .line))
     }
     
+    func getYawVelocity() -> LineDataSet {
+        return LineDataSet(dataPoints: yawVelocityData,
+                           legendTitle: "deg/s",
+                           pointStyle: PointStyle(),
+                           style: LineStyle(lineColour: ColourStyle(colour: .blue), lineType: .line))
+    }
+    
     func getServo0Pos() -> LineDataSet {
         return LineDataSet(dataPoints: servo0pos,
                            legendTitle: "deg",
@@ -137,6 +154,7 @@ class EDF : ObservableObject {
         yawData.removeAll()
         pitchData.removeAll()
         rollData.removeAll()
+        yawVelocityData.removeAll()
     }
     
     func resetServoPos() {

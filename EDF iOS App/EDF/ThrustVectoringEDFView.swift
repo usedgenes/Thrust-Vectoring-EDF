@@ -1,15 +1,9 @@
-//
-//  ThrustVectoringEDFView.swift
-//  ESP 32 Interface
-//
-//  Created by Eugene on 8/14/24.
-//
-import UIKit
 import SwiftUI
 import SwiftUICharts
 
 struct ThrustVectoringEDFView: View {
     @EnvironmentObject var bluetoothDevice : BluetoothDeviceHelper
+    @EnvironmentObject var edf : EDF
     
     @State var servo0Position : Double = 0
     @State var servo1Position : Double = 0
@@ -30,6 +24,9 @@ struct ThrustVectoringEDFView: View {
     var body: some View {
         ScrollView {
             Section {
+                HStack {
+                    Text("Loop Time: " + String(edf.loopTime) + " ms")
+                }
                 Text("PID Values")
                     .frame(maxWidth: .infinity, alignment: .center)
                 HStack {
@@ -211,10 +208,7 @@ struct ThrustVectoringEDFView: View {
 struct edfGraphView : View {
     @EnvironmentObject var edf : EDF
     @EnvironmentObject var bluetoothDevice : BluetoothDeviceHelper
-    
-    @State var timerOn = false
-    @State var timer : Timer?
-    @State var delayTime = 1000
+    @State var getData = false
     
     var body : some View {
         Section {
@@ -223,27 +217,20 @@ struct edfGraphView : View {
                 .padding()
             HStack {
                 Button(action: {
-                    if(timer == nil) {
-                        timer = Timer.scheduledTimer(withTimeInterval: TimeInterval(delayTime/1000), repeats: true, block: { _ in
-                            bluetoothDevice.setBMI088(input: "0")
-                        })
-                    }
-                    timerOn.toggle()
+                    bluetoothDevice.setBNO08X(input: "11")
+                    getData.toggle()
                 }) {
                     Text("Get Data")
-                }.disabled(timerOn)
+                }.disabled(getData)
                     .buttonStyle(BorderlessButtonStyle())
                     .frame(maxWidth: .infinity, alignment: .center)
                 
                 Button(action: {
-                    if timer != nil {
-                        timer?.invalidate()
-                        timer = nil
-                        timerOn.toggle()
-                    }
+                    bluetoothDevice.setBNO08X(input: "10")
+                    getData.toggle()
                 }) {
                     Text("Stop")
-                }.disabled(!timerOn)
+                }.disabled(!getData)
                     .buttonStyle(BorderlessButtonStyle())
                     .frame(maxWidth: .infinity, alignment: .center)
                 Button(action: {
@@ -260,12 +247,14 @@ struct edfGraphView : View {
                     .frame(maxWidth: .infinity, alignment: .center)
             }.padding(.bottom)
         }.onDisappear(perform: {
-            timer?.invalidate()
-            timer = nil
-            timerOn.toggle()})
-
+            bluetoothDevice.setBNO08X(input: "10")
+        })
+        
         Text("Yaw")
         ChartStyle().getGraph(datasets: edf.getYaw(), colour: .red)
+        
+        Text("Yaw Velocity")
+        ChartStyle().getGraph(datasets: edf.getYawVelocity(), colour: .red)
         
         Text("Pitch")
         ChartStyle().getGraph(datasets: edf.getPitch(), colour: .green)
@@ -278,10 +267,7 @@ struct edfGraphView : View {
 struct edfServoPosView : View {
     @EnvironmentObject var edf : EDF
     @EnvironmentObject var bluetoothDevice : BluetoothDeviceHelper
-    
-    @State var timerOn = false
-    @State var timer : Timer?
-    @State var delayTime = 1000
+    @State var getData = false
     
     var body: some View {
         Section {
@@ -290,27 +276,20 @@ struct edfServoPosView : View {
                 .padding()
             HStack {
                 Button(action: {
-                    if(timer == nil) {
-                        timer = Timer.scheduledTimer(withTimeInterval: TimeInterval(delayTime/1000), repeats: true, block: { _ in
-                            bluetoothDevice.setServos(input: "2")
-                        })
-                    }
-                    timerOn.toggle()
+                    bluetoothDevice.setServos(input: "11")
+                    getData.toggle()
                 }) {
                     Text("Get Data")
-                }.disabled(timerOn)
+                }.disabled(getData)
                     .buttonStyle(BorderlessButtonStyle())
                     .frame(maxWidth: .infinity, alignment: .center)
                 
                 Button(action: {
-                    if timer != nil {
-                        timer?.invalidate()
-                        timer = nil
-                        timerOn.toggle()
-                    }
+                    bluetoothDevice.setServos(input: "10")
+                    getData.toggle()
                 }) {
                     Text("Stop")
-                }.disabled(!timerOn)
+                }.disabled(!getData)
                     .buttonStyle(BorderlessButtonStyle())
                     .frame(maxWidth: .infinity, alignment: .center)
                 Button(action: {
@@ -321,9 +300,8 @@ struct edfServoPosView : View {
                     .frame(maxWidth: .infinity, alignment: .center)
             }.padding(.bottom)
         }.onDisappear(perform: {
-            timer?.invalidate()
-            timer = nil
-            timerOn.toggle()})
+            bluetoothDevice.setServos(input: "10")
+        })
         
         Text("Servo 0 Position")
         ChartStyle().getGraph(datasets: edf.getServo0Pos(), colour: .red)
@@ -342,10 +320,7 @@ struct edfServoPosView : View {
 struct edfPidView : View {
     @EnvironmentObject var edf : EDF
     @EnvironmentObject var bluetoothDevice : BluetoothDeviceHelper
-    
-    @State var timerOn = false
-    @State var timer : Timer?
-    @State var delayTime = 1000
+    @State var getData = false
     
     var body: some View {
         Section {
@@ -354,27 +329,20 @@ struct edfPidView : View {
                 .padding()
             HStack {
                 Button(action: {
-                    if(timer == nil) {
-                        timer = Timer.scheduledTimer(withTimeInterval: TimeInterval(delayTime/1000), repeats: true, block: { _ in
-                            bluetoothDevice.setPID(input: "3")
-                        })
-                    }
-                    timerOn.toggle()
+                    bluetoothDevice.setPID(input: "31")
+                    getData.toggle()
                 }) {
                     Text("Get Data")
-                }.disabled(timerOn)
+                }.disabled(getData)
                     .buttonStyle(BorderlessButtonStyle())
                     .frame(maxWidth: .infinity, alignment: .center)
                 
                 Button(action: {
-                    if timer != nil {
-                        timer?.invalidate()
-                        timer = nil
-                        timerOn.toggle()
-                    }
+                    bluetoothDevice.setPID(input: "30")
+                    getData.toggle()
                 }) {
                     Text("Stop")
-                }.disabled(!timerOn)
+                }.disabled(!getData)
                     .buttonStyle(BorderlessButtonStyle())
                     .frame(maxWidth: .infinity, alignment: .center)
                 Button(action: {
@@ -385,9 +353,8 @@ struct edfPidView : View {
                     .frame(maxWidth: .infinity, alignment: .center)
             }.padding(.bottom)
         }.onDisappear(perform: {
-            timer?.invalidate()
-            timer = nil
-            timerOn.toggle()})
+            bluetoothDevice.setPID(input: "30")
+        })
         
         Text("Yaw Command")
         ChartStyle().getGraph(datasets: edf.getYawCommand(), colour: .red)
@@ -403,5 +370,14 @@ struct edfPidView : View {
 struct ThrustVectoringEDFView_Previews: PreviewProvider {
     static var previews: some View {
         ThrustVectoringEDFView()
+    }
+}
+
+extension View {
+    func hideKeyboardWhenTappedAround() -> some View  {
+        return self.onTapGesture {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                            to: nil, from: nil, for: nil)
+        }
     }
 }

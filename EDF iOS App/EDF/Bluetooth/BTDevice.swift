@@ -152,10 +152,7 @@ extension BTDevice: CBPeripheralDelegate {
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        print("Device: discovered characteristics")
         service.characteristics?.forEach {
-            print("   \($0)")
-            
             if $0.uuid == BTUUIDs.blinkUUID {
                 self.blinkChar = $0
                 peripheral.readValue(for: $0)
@@ -178,13 +175,10 @@ extension BTDevice: CBPeripheralDelegate {
                 peripheral.setNotifyValue(true, for: $0)
             }
         }
-        print()
         delegate?.deviceReady()
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-//        print("Device: updated value for \(characteristic)")
-        
         if characteristic.uuid == blinkChar?.uuid, let b = characteristic.value {
             let temp = String(decoding: b, as: UTF8.self)
             if(temp == "On") {
@@ -195,10 +189,18 @@ extension BTDevice: CBPeripheralDelegate {
             }
             delegate?.deviceBlinkChanged(value: _blink)
         }
+        if characteristic.uuid == utilitiesChar?.uuid, let b = characteristic.value {
+            var value = String(decoding: b, as: UTF8.self)
+            if(value[...value.startIndex] == "5") {
+                value.remove(at: value.startIndex)
+                edf!.setLoopTime(loopTime: Int(value)!)
+            }
+        }
         if characteristic.uuid == servoChar?.uuid, let b = characteristic.value {
             var value = String(decoding: b, as: UTF8.self)
-            if(value != "") {
-                if(Int(value[...value.startIndex]) == 3) {
+            if(value[...value.startIndex] == "5") {
+                value.remove(at: value.startIndex)
+                if(value[...value.startIndex] == "1") {
                     value.remove(at: value.startIndex)
                     
                     let servo0pos = Float(value)!
@@ -206,7 +208,7 @@ extension BTDevice: CBPeripheralDelegate {
                     
                     return;
                 }
-                if(Int(value[...value.startIndex]) == 4) {
+                if(value[...value.startIndex] == "2") {
                     value.remove(at: value.startIndex)
                     
                     let servo1pos = Float(value)!
@@ -214,7 +216,7 @@ extension BTDevice: CBPeripheralDelegate {
                     
                     return;
                 }
-                if(Int(value[...value.startIndex]) == 5) {
+                if(value[...value.startIndex] == "3") {
                     value.remove(at: value.startIndex)
                     
                     let servo2pos = Float(value)!
@@ -222,7 +224,7 @@ extension BTDevice: CBPeripheralDelegate {
                     
                     return;
                 }
-                if(Int(value[...value.startIndex]) == 6) {
+                if(value[...value.startIndex] == "4") {
                     value.remove(at: value.startIndex)
                     
                     let servo3pos = Float(value)!
@@ -234,8 +236,9 @@ extension BTDevice: CBPeripheralDelegate {
         }
         if characteristic.uuid == pidChar?.uuid, let b = characteristic.value {
             var value = String(decoding: b, as: UTF8.self)
-            if(value != "") {
-                if(Int(value[...value.startIndex]) == 4) {
+            if(value[...value.startIndex] == "5") {
+                value.remove(at: value.startIndex)
+                if(value[...value.startIndex] == "0") {
                     value.remove(at: value.startIndex)
                     
                     let yawCmd = Float(value)!
@@ -243,7 +246,7 @@ extension BTDevice: CBPeripheralDelegate {
                     
                     return;
                 }
-                if(Int(value[...value.startIndex]) == 5) {
+                if(value[...value.startIndex] == "1") {
                     value.remove(at: value.startIndex)
                     
                     let pitchCmd = Float(value)!
@@ -251,7 +254,7 @@ extension BTDevice: CBPeripheralDelegate {
                     
                     return;
                 }
-                if(Int(value[...value.startIndex]) == 6) {
+                if(value[...value.startIndex] == "2") {
                     value.remove(at: value.startIndex)
                     
                     let rollCmd = Float(value)!
@@ -264,39 +267,39 @@ extension BTDevice: CBPeripheralDelegate {
         
         if characteristic.uuid == bno08xChar?.uuid, let b = characteristic.value {
             var value = String(decoding: b, as: UTF8.self)
-            if(value != "") {
-                let deviceNumber = Int(value[...value.index(value.startIndex, offsetBy: 1)])!
-                value.removeSubrange(...value.index(value.startIndex, offsetBy: 1))
-                print(value);
-                //rotation
-                if(Int(value[...value.startIndex]) == 3) {
+            if(value[...value.startIndex] == "5") {
+                value.remove(at: value.startIndex)
+                if(value[...value.startIndex] == "0") {
                     value.remove(at: value.startIndex)
                     
-                    let rotationX = Float(value[..<value.firstIndex(of: ",")!])!
-                    value.removeSubrange(...value.firstIndex(of: ",")!)
+                    let yaw = Float(value)!
+                    edf!.addYaw(yaw: yaw)
                     
-                    let rotationY = Float(value[..<value.firstIndex(of: ",")!])!
-                    value.removeSubrange(...value.firstIndex(of: ",")!)
-                    
-                    let rotationZ = Float(value[..<value.firstIndex(of: ",")!])!
-                    value.removeSubrange(...value.firstIndex(of: ",")!)
-
-                    let rotationReal = Float(value[..<value.firstIndex(of: ",")!])!
-                    value.removeSubrange(...value.firstIndex(of: ",")!)
-                    
-                    let rotationAccuracy = Float(value)!
-
+                    return;
                 }
-                //gyro
-                if(Int(value[...value.startIndex]) == 4) {
+                if(value[...value.startIndex] == "1") {
                     value.remove(at: value.startIndex)
-                    let gyroX = Float(value[..<value.firstIndex(of: ",")!])!
-                    value.removeSubrange(...value.firstIndex(of: ",")!)
-
-                    let gyroY = Float(value[..<value.firstIndex(of: ",")!])!
-                    value.removeSubrange(...value.firstIndex(of: ",")!)
-   
-                    let gyroZ = Float(value)!
+                    
+                    let pitch = Float(value)!
+                    edf!.addPitch(pitch: pitch)
+                    
+                    return;
+                }
+                if(value[...value.startIndex] == "2") {
+                    value.remove(at: value.startIndex)
+                    
+                    let roll = Float(value)!
+                    edf!.addRoll(roll: roll)
+                    
+                    return;
+                }
+                if(value[...value.startIndex] == "3") {
+                    value.remove(at: value.startIndex)
+                    
+                    let yawVelocity = Float(value)!
+                    edf!.addYawVelocity(yawVelocity: yawVelocity)
+                    
+                    return;
                 }
             }
         }
