@@ -22,9 +22,6 @@ BLECharacteristic *pUtilities;
 
 InertialMeasurementUnit imu;
 ControlLoop yawPID, pitchPID, rollPID;
-Constants rollConstants = { .Kp = 75, .Kd = 0.5, .Ki = 0.0 };
-Constants pitchConstants = { .Kp = 75, .Kd = 0.0, .Ki = 0.0 };
-Constants yawConstants = { .Kp = 75, .Kd = 0.0, .Ki = 0.0 };
 ServoControl servos;
 Servo EDF;
 
@@ -112,19 +109,13 @@ class PIDCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     String value = pCharacteristic->getValue();
     if (value.substring(0, 1) == "0") {
-      rollConstants.Kp = value.substring(1, value.indexOf(',')).toFloat();
-      rollConstants.Ki = value.substring(value.indexOf(',') + 1, value.indexOf('!')).toFloat();
-      rollConstants.Kd = value.substring(value.indexOf('!') + 1, value.length()).toFloat();
+      rollPID.SetGains(value.substring(1, value.indexOf(',')).toFloat(), value.substring(value.indexOf(',') + 1, value.indexOf('!')).toFloat(), value.substring(value.indexOf('!') + 1, value.length()).toFloat());
     }
     if (value.substring(0, 1) == "1") {
-      pitchConstants.Kp = value.substring(1, value.indexOf(',')).toFloat();
-      pitchConstants.Ki = value.substring(value.indexOf(',') + 1, value.indexOf('!')).toFloat();
-      pitchConstants.Kd = value.substring(value.indexOf('!') + 1, value.length()).toFloat();
+      pitchPID.SetGains(value.substring(1, value.indexOf(',')).toFloat(), value.substring(value.indexOf(',') + 1, value.indexOf('!')).toFloat(), value.substring(value.indexOf('!') + 1, value.length()).toFloat());
     }
     if (value.substring(0, 1) == "2") {
-      yawConstants.Kp = value.substring(1, value.indexOf(',')).toFloat();
-      yawConstants.Ki = value.substring(value.indexOf(',') + 1, value.indexOf('!')).toFloat();
-      yawConstants.Kd = value.substring(value.indexOf('!') + 1, value.length()).toFloat();
+      yawPID.SetGains(value.substring(1, value.indexOf(',')).toFloat(), value.substring(value.indexOf(',') + 1, value.indexOf('!')).toFloat(), value.substring(value.indexOf('!') + 1, value.length()).toFloat());
     }
     if (value.substring(0, 1) == "3") {
       if (value.substring(1, 2) == "0") {
@@ -133,9 +124,7 @@ class PIDCallbacks : public BLECharacteristicCallbacks {
         logBluetoothPID = true;
       }
     }
-    Serial.println("Roll Constants: \t" + String(rollConstants.kp) + "\t" + String(rollConstants.Ki) + "\t" + String(rollConstants.Kd));
-    Serial.println("Pitch Constants: \t" + String(pitchConstants.kp) + "\t" + String(pitchConstants.Ki) + "\t" + String(pitchConstants.Kd));
-    Serial.println("Yaw Constants: \t" + String(yawConstants.kp) + "\t" + String(yawConstants.Ki) + "\t" + String(yawConstants.Kd));
+
   }
 };
 
@@ -178,9 +167,9 @@ void setup() {
 
   pAdvertising->start();
 
-  yawPID.SetGains(rollConstants);
-  pitchPID.SetGains(pitchConstants);
-  rollPID.SetGains(yawConstants);
+  yawPID.SetGains(50.0, 0.0, 0.0);
+  pitchPID.SetGains(50.0, 0.0, 0.0);
+  rollPID.SetGains(50.0, 0.0, 0.0);
   servos.Init();
   imu.Init();
   EDF.attach(15);
@@ -247,6 +236,9 @@ void loop() {
     pUtilities->setValue("5" + String(deltaTime));
     pUtilities->notify();
     bluetoothRefresh = 0;
+    // Serial.println("Roll Constants: \t" + String(rollConstants.Kp) + "\t" + String(rollConstants.Ki) + "\t" + String(rollConstants.Kd));
+    // Serial.println("Pitch Constants: \t" + String(pitchConstants.Kp) + "\t" + String(pitchConstants.Ki) + "\t" + String(pitchConstants.Kd));
+    // Serial.println("Yaw Constants: \t" + String(yawConstants.Kp) + "\t" + String(yawConstants.Ki) + "\t" + String(yawConstants.Kd));
   }
   bluetoothRefresh += 1;
 }

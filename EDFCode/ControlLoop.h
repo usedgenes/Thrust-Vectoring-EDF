@@ -1,22 +1,19 @@
 #ifndef CONTROLLOOP_H_
 #define CONTROLLOOP_H_
 
-typedef struct {
-  float Kp;
-  float Kd;
-  float Ki;
-} Constants;
+#include "Arduino.h"
 
 class ControlLoop {
 private:
-  Constants constants;
-
+  float Kp;
+  float Ki;
+  float Kd;
   float error = 0;
   float errorPrev = 0;
   float integrator = 0;
 
 public:
-  void SetGains(Constants _constants);
+  void SetGains(float _Kp, float _Ki, float _Kd);
   float ComputeCorrection(float error, float loopTime);
 };
 
