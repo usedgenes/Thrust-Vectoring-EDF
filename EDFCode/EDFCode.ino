@@ -13,7 +13,7 @@
 #define PID_UUID "a979c0ba-a2be-45e5-9d7b-079b06e06096"
 #define UTILITIES_UUID "fb02a2fa-2a86-4e95-8110-9ded202af76b"
 
-#define BLUETOOTH_REFRESH_RATE 5
+#define BLUETOOTH_REFRESH_RATE 100
 
 BLECharacteristic *pServo;
 BLECharacteristic *pBNO08X;
@@ -28,7 +28,10 @@ Constants yawConstants = { .Kp = 75, .Kd = 0.0, .Ki = 0.0 };
 ServoControl servos;
 Servo EDF;
 
-bool logBluetoothData = false;
+bool logBluetoothEulerAngle = false;
+bool logBluetoothPID = false;
+bool logBluetoothServo = false;
+
 int bluetoothRefresh = 0;
 
 unsigned long previousTime;
@@ -62,14 +65,6 @@ class UtilitiesCallbacks : public BLECharacteristicCallbacks {
     if (value.substring(0, 1) == "0") {
       resetFunc();
     }
-    if(value.substring(0, 1) == "8") {
-      if(value.substring(1, 2) == "0") {
-        logBluetoothData = true;
-      }
-      if(value.substring(1, 2) == "1") {
-        logBluetoothData = false;
-      }
-    }
   }
 };
 
@@ -87,14 +82,28 @@ class ServoCallbacks : public BLECharacteristicCallbacks {
     } else if (value.substring(0, 1) == "4") {
       EDF.write(value.substring(1, value.length()).toInt());
     }
+    if (value.substring(0, 1) == "1") {
+      if (value.substring(1, 2) == "0") {
+        logBluetoothServo = false;
+      } else {
+        logBluetoothServo = true;
+      }
+    }
   }
 };
 
 class BNO08XCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     String value = pCharacteristic->getValue();
-    if (value.substring(0, 1) == "1") {
+    if (value.substring(0, 1) == "0") {
       imu.ComputeEulerOffsets();
+    }
+    if (value.substring(0, 1) == "1") {
+      if (value.substring(1, 2) == "0") {
+        logBluetoothEulerAngle = false;
+      } else {
+        logBluetoothEulerAngle = true;
+      }
     }
   }
 };
@@ -117,6 +126,16 @@ class PIDCallbacks : public BLECharacteristicCallbacks {
       yawConstants.Ki = value.substring(value.indexOf(',') + 1, value.indexOf('!')).toFloat();
       yawConstants.Kd = value.substring(value.indexOf('!') + 1, value.length()).toFloat();
     }
+    if (value.substring(0, 1) == "3") {
+      if (value.substring(1, 2) == "0") {
+        logBluetoothPID = false;
+      } else {
+        logBluetoothPID = true;
+      }
+    }
+    Serial.println("Roll Constants: \t" + String(rollConstants.kp) + "\t" + String(rollConstants.Ki) + "\t" + String(rollConstants.Kd));
+    Serial.println("Pitch Constants: \t" + String(pitchConstants.kp) + "\t" + String(pitchConstants.Ki) + "\t" + String(pitchConstants.Kd));
+    Serial.println("Yaw Constants: \t" + String(yawConstants.kp) + "\t" + String(yawConstants.Ki) + "\t" + String(yawConstants.Kd));
   }
 };
 
@@ -180,42 +199,53 @@ void loop() {
   float pitch = 0;
   float roll = 0;
   imu.GetEulerAngle(yaw, pitch, roll, output);
+  yaw *= 57.29;
+  pitch *= 57.29;
+  roll *= 57.29;
+  roll -= 90;
 
-  float yawVelocity = (yaw - previousYaw) / deltaTime;
+  float yawVelocity = (yaw - previousYaw) / (deltaTime/1000);
   previousYaw = yaw;
   yawCommand = yawPID.ComputeCorrection(yawVelocity, deltaTime);
   pitchCommand = pitchPID.ComputeCorrection(pitch, deltaTime);
   rollCommand = rollPID.ComputeCorrection(roll, deltaTime);
 
-  yawCommand = 0;
   servo0pos = servos.WriteServoPosition(0, -pitchCommand * mixing - yawCommand * mixing);
   servo1pos = servos.WriteServoPosition(1, -rollCommand * mixing - yawCommand * mixing);
   servo2pos = servos.WriteServoPosition(2, pitchCommand * mixing - yawCommand * mixing);
   servo3pos = servos.WriteServoPosition(3, rollCommand * mixing - yawCommand * mixing);
 
-  if (logBluetoothData && bluetoothRefresh == BLUETOOTH_REFRESH_RATE) {
-    pBNO08X->setValue("80" + String(yaw));
-    pBNO08X->notify();
-    pBNO08X->setValue("81" + String(yaw));
-    pBNO08X->notify();
-    pBNO08X->setValue("82" + String(yaw));
-    pBNO08X->notify();
-
-    pPID->setValue("80" + String(yawCommand));
-    pPID->notify();
-    pPID->setValue("81" + String(pitchCommand));
-    pPID->notify();
-    pPID->setValue("82" + String(rollCommand));
-    pPID->notify();
-
-    pServo->setValue("80" + String(servo0pos));
-    pServo->notify();
-    pServo->setValue("81" + String(servo1pos));
-    pServo->notify();
-    pServo->setValue("82" + String(servo2pos));
-    pServo->notify();
-    pServo->setValue("83" + String(servo3pos));
-    pServo->notify();
+  if (bluetoothRefresh == BLUETOOTH_REFRESH_RATE) {
+    if (logBluetoothEulerAngle) {
+      pBNO08X->setValue("50" + String(yaw));
+      pBNO08X->notify();
+      pBNO08X->setValue("51" + String(pitch));
+      pBNO08X->notify();
+      pBNO08X->setValue("52" + String(roll));
+      pBNO08X->notify();
+      pBNO08X->setValue("53" + String(yawVelocity));
+      pBNO08X->notify();
+    }
+    if (logBluetoothPID) {
+      pPID->setValue("50" + String(yawCommand));
+      pPID->notify();
+      pPID->setValue("51" + String(pitchCommand));
+      pPID->notify();
+      pPID->setValue("52" + String(rollCommand));
+      pPID->notify();
+    }
+    if (logBluetoothServo) {
+      pServo->setValue("50" + String(servo0pos));
+      pServo->notify();
+      pServo->setValue("51" + String(servo1pos));
+      pServo->notify();
+      pServo->setValue("52" + String(servo2pos));
+      pServo->notify();
+      pServo->setValue("53" + String(servo3pos));
+      pServo->notify();
+    }
+    pUtilities->setValue("5" + String(deltaTime));
+    pUtilities->notify();
     bluetoothRefresh = 0;
   }
   bluetoothRefresh += 1;
