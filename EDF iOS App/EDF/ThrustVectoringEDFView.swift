@@ -211,56 +211,58 @@ struct edfGraphView : View {
     @State var getData = false
     
     var body : some View {
-        Section {
-            Text("BMI088 Data Graphs")
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding()
-            HStack {
-                Button(action: {
-                    bluetoothDevice.setBNO08X(input: "11")
-                    getData.toggle()
-                }) {
-                    Text("Get Data")
-                }.disabled(getData)
-                    .buttonStyle(BorderlessButtonStyle())
+        ScrollView {
+            Section {
+                Text("BMI088 Data Graphs")
                     .frame(maxWidth: .infinity, alignment: .center)
-                
-                Button(action: {
-                    bluetoothDevice.setBNO08X(input: "10")
-                    getData.toggle()
-                }) {
-                    Text("Stop")
-                }.disabled(!getData)
-                    .buttonStyle(BorderlessButtonStyle())
-                    .frame(maxWidth: .infinity, alignment: .center)
-                Button(action: {
-                    edf.resetRotation()
-                }) {
-                    Text("Reset All")
-                }.buttonStyle(BorderlessButtonStyle())
-                    .frame(maxWidth: .infinity, alignment: .center)
-                Button(action: {
-                    bluetoothDevice.setBNO08X(input: "1")
-                }) {
-                    Text("Calibrate")
-                }.buttonStyle(BorderlessButtonStyle())
-                    .frame(maxWidth: .infinity, alignment: .center)
-            }.padding(.bottom)
-        }.onDisappear(perform: {
-            bluetoothDevice.setBNO08X(input: "10")
-        })
-        
-        Text("Yaw")
-        ChartStyle().getGraph(datasets: edf.getYaw(), colour: .red)
-        
-        Text("Yaw Velocity")
-        ChartStyle().getGraph(datasets: edf.getYawVelocity(), colour: .red)
-        
-        Text("Pitch")
-        ChartStyle().getGraph(datasets: edf.getPitch(), colour: .green)
-        
-        Text("Roll")
-        ChartStyle().getGraph(datasets: edf.getRoll(), colour: .blue)
+                    .padding()
+                HStack {
+                    Button(action: {
+                        bluetoothDevice.setBNO08X(input: "11")
+                        getData.toggle()
+                    }) {
+                        Text("Get Data")
+                    }.disabled(getData)
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    
+                    Button(action: {
+                        bluetoothDevice.setBNO08X(input: "10")
+                        getData.toggle()
+                    }) {
+                        Text("Stop")
+                    }.disabled(!getData)
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Button(action: {
+                        edf.resetRotation()
+                    }) {
+                        Text("Reset All")
+                    }.buttonStyle(BorderlessButtonStyle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Button(action: {
+                        bluetoothDevice.setBNO08X(input: "1")
+                    }) {
+                        Text("Calibrate")
+                    }.buttonStyle(BorderlessButtonStyle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }.padding(.bottom)
+            }.onDisappear(perform: {
+                bluetoothDevice.setBNO08X(input: "10")
+            })
+            
+            Text("Yaw Velocity")
+            ChartStyle().getGraph(datasets: edf.getYawVelocity(), colour: .red)
+            
+            Text("Pitch")
+            ChartStyle().getGraph(datasets: edf.getPitch(), colour: .green)
+            
+            Text("Roll")
+            ChartStyle().getGraph(datasets: edf.getRoll(), colour: .blue)
+            
+            Text("Yaw")
+            ChartStyle().getGraph(datasets: edf.getYaw(), colour: .red)
+        }
     }
 }
 
@@ -270,50 +272,52 @@ struct edfServoPosView : View {
     @State var getData = false
     
     var body: some View {
-        Section {
-            Text("Servo Position Graphs")
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding()
-            HStack {
-                Button(action: {
-                    bluetoothDevice.setServos(input: "11")
-                    getData.toggle()
-                }) {
-                    Text("Get Data")
-                }.disabled(getData)
-                    .buttonStyle(BorderlessButtonStyle())
+        ScrollView {
+            Section {
+                Text("Servo Position Graphs")
                     .frame(maxWidth: .infinity, alignment: .center)
-                
-                Button(action: {
-                    bluetoothDevice.setServos(input: "10")
-                    getData.toggle()
-                }) {
-                    Text("Stop")
-                }.disabled(!getData)
-                    .buttonStyle(BorderlessButtonStyle())
-                    .frame(maxWidth: .infinity, alignment: .center)
-                Button(action: {
-                    edf.resetServoPos()
-                }) {
-                    Text("Reset All")
-                }.buttonStyle(BorderlessButtonStyle())
-                    .frame(maxWidth: .infinity, alignment: .center)
-            }.padding(.bottom)
-        }.onDisappear(perform: {
-            bluetoothDevice.setServos(input: "10")
-        })
-        
-        Text("Servo 0 Position")
-        ChartStyle().getGraph(datasets: edf.getServo0Pos(), colour: .red)
-        
-        Text("Servo 1 Position")
-        ChartStyle().getGraph(datasets: edf.getServo1Pos(), colour: .green)
-        
-        Text("Servo 2 Position")
-        ChartStyle().getGraph(datasets: edf.getServo2Pos(), colour: .blue)
-        
-        Text("Servo 3 Position")
-        ChartStyle().getGraph(datasets: edf.getServo3Pos(), colour: .yellow)
+                    .padding()
+                HStack {
+                    Button(action: {
+                        bluetoothDevice.setServos(input: "11")
+                        getData.toggle()
+                    }) {
+                        Text("Get Data")
+                    }.disabled(getData)
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    
+                    Button(action: {
+                        bluetoothDevice.setServos(input: "10")
+                        getData.toggle()
+                    }) {
+                        Text("Stop")
+                    }.disabled(!getData)
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Button(action: {
+                        edf.resetServoPos()
+                    }) {
+                        Text("Reset All")
+                    }.buttonStyle(BorderlessButtonStyle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }.padding(.bottom)
+            }.onDisappear(perform: {
+                bluetoothDevice.setServos(input: "10")
+            })
+            
+            Text("Servo 0 Position")
+            ChartStyle().getGraph(datasets: edf.getServo0Pos(), colour: .red)
+            
+            Text("Servo 1 Position")
+            ChartStyle().getGraph(datasets: edf.getServo1Pos(), colour: .green)
+            
+            Text("Servo 2 Position")
+            ChartStyle().getGraph(datasets: edf.getServo2Pos(), colour: .blue)
+            
+            Text("Servo 3 Position")
+            ChartStyle().getGraph(datasets: edf.getServo3Pos(), colour: .yellow)
+        }
     }
 }
 
@@ -323,47 +327,49 @@ struct edfPidView : View {
     @State var getData = false
     
     var body: some View {
-        Section {
-            Text("PID Command Graphs")
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding()
-            HStack {
-                Button(action: {
-                    bluetoothDevice.setPID(input: "31")
-                    getData.toggle()
-                }) {
-                    Text("Get Data")
-                }.disabled(getData)
-                    .buttonStyle(BorderlessButtonStyle())
+        ScrollView {
+            Section {
+                Text("PID Command Graphs")
                     .frame(maxWidth: .infinity, alignment: .center)
-                
-                Button(action: {
-                    bluetoothDevice.setPID(input: "30")
-                    getData.toggle()
-                }) {
-                    Text("Stop")
-                }.disabled(!getData)
-                    .buttonStyle(BorderlessButtonStyle())
-                    .frame(maxWidth: .infinity, alignment: .center)
-                Button(action: {
-                    edf.resetPIDCommands()
-                }) {
-                    Text("Reset All")
-                }.buttonStyle(BorderlessButtonStyle())
-                    .frame(maxWidth: .infinity, alignment: .center)
-            }.padding(.bottom)
-        }.onDisappear(perform: {
-            bluetoothDevice.setPID(input: "30")
-        })
-        
-        Text("Yaw Command")
-        ChartStyle().getGraph(datasets: edf.getYawCommand(), colour: .red)
-        
-        Text("Pitch Command")
-        ChartStyle().getGraph(datasets: edf.getPitchCommand(), colour: .green)
-        
-        Text("Roll Command")
-        ChartStyle().getGraph(datasets: edf.getRollCommand(), colour: .blue)
+                    .padding()
+                HStack {
+                    Button(action: {
+                        bluetoothDevice.setPID(input: "31")
+                        getData.toggle()
+                    }) {
+                        Text("Get Data")
+                    }.disabled(getData)
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    
+                    Button(action: {
+                        bluetoothDevice.setPID(input: "30")
+                        getData.toggle()
+                    }) {
+                        Text("Stop")
+                    }.disabled(!getData)
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Button(action: {
+                        edf.resetPIDCommands()
+                    }) {
+                        Text("Reset All")
+                    }.buttonStyle(BorderlessButtonStyle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }.padding(.bottom)
+            }.onDisappear(perform: {
+                bluetoothDevice.setPID(input: "30")
+            })
+            
+            Text("Yaw Command")
+            ChartStyle().getGraph(datasets: edf.getYawCommand(), colour: .red)
+            
+            Text("Pitch Command")
+            ChartStyle().getGraph(datasets: edf.getPitchCommand(), colour: .green)
+            
+            Text("Roll Command")
+            ChartStyle().getGraph(datasets: edf.getRollCommand(), colour: .blue)
+        }
     }
 }
 

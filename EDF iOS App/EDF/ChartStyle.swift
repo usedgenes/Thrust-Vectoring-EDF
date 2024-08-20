@@ -39,12 +39,12 @@ struct ChartStyle {
             .filledTopLine(chartData: chartData,
                            lineColour: ColourStyle(colour: colour),
                            strokeStyle: StrokeStyle(lineWidth: 3))
-            .touchOverlay(chartData: chartData, specifier: "%.2f")
+//            .touchOverlay(chartData: chartData, specifier: "%.2f")
             .xAxisGrid(chartData: chartData)
             .yAxisGrid(chartData: chartData)
             .xAxisLabels(chartData: chartData)
             .yAxisLabels(chartData: chartData, specifier: "%.2f")
-            .floatingInfoBox(chartData: chartData)
+//            .floatingInfoBox(chartData: chartData)
             .id(chartData.id)
             .frame(minWidth: 150, maxWidth: 390, minHeight: 150, maxHeight: 400)
     }

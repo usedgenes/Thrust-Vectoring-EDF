@@ -191,115 +191,123 @@ extension BTDevice: CBPeripheralDelegate {
         }
         if characteristic.uuid == utilitiesChar?.uuid, let b = characteristic.value {
             var value = String(decoding: b, as: UTF8.self)
-            if(value[...value.startIndex] == "5") {
-                value.remove(at: value.startIndex)
-                edf!.setLoopTime(loopTime: Int(value)!)
+            if(value != "") {
+//                if(value[...value.startIndex] == "5") {
+//                    value.remove(at: value.startIndex)
+//                    edf!.setLoopTime(loopTime: Int(value)!)
+//                }
             }
         }
         if characteristic.uuid == servoChar?.uuid, let b = characteristic.value {
             var value = String(decoding: b, as: UTF8.self)
-            if(value[...value.startIndex] == "5") {
-                value.remove(at: value.startIndex)
-                if(value[...value.startIndex] == "1") {
+            if(value != "") {
+                if(value[...value.startIndex] == "5") {
                     value.remove(at: value.startIndex)
-                    
-                    let servo0pos = Float(value)!
-                    edf!.addServo0Pos(pos: servo0pos)
-                    
-                    return;
-                }
-                if(value[...value.startIndex] == "2") {
-                    value.remove(at: value.startIndex)
-                    
-                    let servo1pos = Float(value)!
-                    edf!.addServo1Pos(pos: servo1pos)
-                    
-                    return;
-                }
-                if(value[...value.startIndex] == "3") {
-                    value.remove(at: value.startIndex)
-                    
-                    let servo2pos = Float(value)!
-                    edf!.addServo2Pos(pos: servo2pos)
-                    
-                    return;
-                }
-                if(value[...value.startIndex] == "4") {
-                    value.remove(at: value.startIndex)
-                    
-                    let servo3pos = Float(value)!
-                    edf!.addServo3Pos(pos: servo3pos)
-                    
-                    return;
+                    if(value[...value.startIndex] == "0") {
+                        value.remove(at: value.startIndex)
+                        
+                        let servo0pos = Float(value)!
+                        edf!.addServo0Pos(pos: servo0pos)
+                        
+                        return;
+                    }
+                    if(value[...value.startIndex] == "1") {
+                        value.remove(at: value.startIndex)
+                        
+                        let servo1pos = Float(value)!
+                        edf!.addServo1Pos(pos: servo1pos)
+                        
+                        return;
+                    }
+                    if(value[...value.startIndex] == "2") {
+                        value.remove(at: value.startIndex)
+                        
+                        let servo2pos = Float(value)!
+                        edf!.addServo2Pos(pos: servo2pos)
+                        
+                        return;
+                    }
+                    if(value[...value.startIndex] == "3") {
+                        value.remove(at: value.startIndex)
+                        
+                        let servo3pos = Float(value)!
+                        edf!.addServo3Pos(pos: servo3pos)
+                        
+                        return;
+                    }
                 }
             }
         }
         if characteristic.uuid == pidChar?.uuid, let b = characteristic.value {
             var value = String(decoding: b, as: UTF8.self)
-            if(value[...value.startIndex] == "5") {
-                value.remove(at: value.startIndex)
-                if(value[...value.startIndex] == "0") {
+            if(value != "") {
+                if(value[...value.startIndex] == "5") {
                     value.remove(at: value.startIndex)
-                    
-                    let yawCmd = Float(value)!
-                    edf!.addYawCommand(cmd: yawCmd)
-                    
-                    return;
-                }
-                if(value[...value.startIndex] == "1") {
-                    value.remove(at: value.startIndex)
-                    
-                    let pitchCmd = Float(value)!
-                    edf!.addPitchCommand(cmd: pitchCmd)
-                    
-                    return;
-                }
-                if(value[...value.startIndex] == "2") {
-                    value.remove(at: value.startIndex)
-                    
-                    let rollCmd = Float(value)!
-                    edf!.addRollCommand(cmd: rollCmd)
-                    
-                    return;
+                    if(value[...value.startIndex] == "0") {
+                        value.remove(at: value.startIndex)
+                        
+                        let yawCmd = Float(value)!
+                        edf!.addYawCommand(cmd: yawCmd)
+                        
+                        return;
+                    }
+                    if(value[...value.startIndex] == "1") {
+                        value.remove(at: value.startIndex)
+                        
+                        let pitchCmd = Float(value)!
+                        edf!.addPitchCommand(cmd: pitchCmd)
+                        
+                        return;
+                    }
+                    if(value[...value.startIndex] == "2") {
+                        value.remove(at: value.startIndex)
+                        
+                        let rollCmd = Float(value)!
+                        edf!.addRollCommand(cmd: rollCmd)
+                        
+                        return;
+                    }
                 }
             }
         }
         
         if characteristic.uuid == bno08xChar?.uuid, let b = characteristic.value {
             var value = String(decoding: b, as: UTF8.self)
-            if(value[...value.startIndex] == "5") {
-                value.remove(at: value.startIndex)
-                if(value[...value.startIndex] == "0") {
+            if(value != "") {
+                if(value[...value.startIndex] == "5") {
                     value.remove(at: value.startIndex)
-                    
-                    let yaw = Float(value)!
-                    edf!.addYaw(yaw: yaw)
-                    
-                    return;
-                }
-                if(value[...value.startIndex] == "1") {
-                    value.remove(at: value.startIndex)
-                    
-                    let pitch = Float(value)!
-                    edf!.addPitch(pitch: pitch)
-                    
-                    return;
-                }
-                if(value[...value.startIndex] == "2") {
-                    value.remove(at: value.startIndex)
-                    
-                    let roll = Float(value)!
-                    edf!.addRoll(roll: roll)
-                    
-                    return;
-                }
-                if(value[...value.startIndex] == "3") {
-                    value.remove(at: value.startIndex)
-                    
-                    let yawVelocity = Float(value)!
-                    edf!.addYawVelocity(yawVelocity: yawVelocity)
-                    
-                    return;
+                    if(value[...value.startIndex] == "0") {
+                        value.remove(at: value.startIndex)
+                        
+                        let yaw = Float(value)!
+                        edf!.addYaw(yaw: yaw)
+                        
+                        return;
+                    }
+                    if(value[...value.startIndex] == "1") {
+                        value.remove(at: value.startIndex)
+                        
+                        let pitch = Float(value)!
+                        edf!.addPitch(pitch: pitch)
+                        
+                        return;
+                    }
+                    if(value[...value.startIndex] == "2") {
+                        value.remove(at: value.startIndex)
+                        
+                        let roll = Float(value)!
+                        edf!.addRoll(roll: roll)
+                        
+                        return;
+                    }
+                    if(value[...value.startIndex] == "3") {
+                        value.remove(at: value.startIndex)
+                        
+                        let yawVelocity = Float(value)!
+                        edf!.addYawVelocity(yawVelocity: yawVelocity)
+                        
+                        return;
+                    }
                 }
             }
         }

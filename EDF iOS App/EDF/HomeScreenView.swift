@@ -23,7 +23,7 @@ struct HomeScreenView: View {
                     NavigationLink("EDF", destination: ThrustVectoringEDFView())
                 }
             }
-            .navigationBarTitle("ESP32 Assistant")
+            .navigationBarTitle("Thrust Vectoring EDF")
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
