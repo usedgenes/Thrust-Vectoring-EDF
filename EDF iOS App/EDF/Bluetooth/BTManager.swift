@@ -10,7 +10,7 @@ import Foundation
 import CoreBluetooth
 
 
-protocol BTManagerDelegate: class {
+protocol BTManagerDelegate: AnyObject {
     func didDiscover(device: BTDevice)
     func didEnableScan(on: Bool)
     func didChangeState(state: CBManagerState)

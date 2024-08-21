@@ -5,35 +5,20 @@ struct ThrustVectoringEDFView: View {
     @EnvironmentObject var bluetoothDevice : BluetoothDeviceHelper
     @EnvironmentObject var edf : EDF
     
-    @State var servo0Position : Double = 0
-    @State var servo1Position : Double = 0
-    @State var servo2Position : Double = 0
-    @State var servo3Position : Double = 0
     @State var edfPower : Double = 50
     
-    @State var rollKp : String = "50.0"
-    @State var rollKi : String = "0.5"
-    @State var rollKd : String = "0.0"
-    @State var pitchKp : String = "50.0"
-    @State var pitchKi : String = "0.0"
-    @State var pitchKd : String = "0.0"
-    @State var yawKp : String = "50.0"
-    @State var yawKi : String = "0.0"
-    @State var yawKd : String = "0.0"
+
     
     var body: some View {
         ScrollView {
             Section {
-                HStack {
-                    Text("Loop Time: " + String(edf.loopTime) + " ms")
-                }
                 Text("PID Values")
                     .frame(maxWidth: .infinity, alignment: .center)
                 HStack {
                     Button(action: {
-                        bluetoothDevice.setPID(input: "0" + rollKp + "," + rollKi + "!" + rollKd)
-                        bluetoothDevice.setPID(input: "1" + pitchKp + "," + pitchKi + "!" + pitchKd)
-                        bluetoothDevice.setPID(input: "2" + yawKp + "," + yawKi + "!" + yawKd)
+                        bluetoothDevice.setPID(input: "0" + edf.rollKp + "," + edf.rollKi + "!" + edf.rollKd)
+                        bluetoothDevice.setPID(input: "1" + edf.pitchKp + "," + edf.pitchKi + "!" + edf.pitchKd)
+                        bluetoothDevice.setPID(input: "2" + edf.yawKp + "," + edf.yawKi + "!" + edf.yawKd)
                     }) {
                         Text("Apply")
                     }.buttonStyle(BorderlessButtonStyle())
@@ -48,24 +33,24 @@ struct ThrustVectoringEDFView: View {
                 HStack {
                     Text("Roll:")
                     Text("Kp:")
-                    TextField(rollKp, text: Binding<String>(
-                        get: { rollKp },
+                    TextField(edf.rollKp, text: Binding<String>(
+                        get: { edf.rollKp },
                         set: {
-                            rollKp = $0
+                            edf.rollKp = $0
                         }))
                     .keyboardType(UIKeyboardType.decimalPad)
                     Text("Ki:")
-                    TextField(rollKi, text: Binding<String>(
-                        get: { rollKi },
+                    TextField(edf.rollKi, text: Binding<String>(
+                        get: { edf.rollKi },
                         set: {
-                            rollKi = $0
+                            edf.rollKi = $0
                         }))
                     .keyboardType(UIKeyboardType.decimalPad)
                     Text("Kd:")
-                    TextField(rollKd, text: Binding<String>(
-                        get: { rollKd },
+                    TextField(edf.rollKd, text: Binding<String>(
+                        get: { edf.rollKd },
                         set: {
-                            rollKd = $0
+                            edf.rollKd = $0
                             
                         }))
                     .keyboardType(UIKeyboardType.decimalPad)
@@ -73,108 +58,54 @@ struct ThrustVectoringEDFView: View {
                 HStack {
                     Text("Pitch:")
                     Text("Kp:")
-                    TextField(pitchKp, text: Binding<String>(
-                        get: { pitchKp },
+                    TextField(edf.pitchKp, text: Binding<String>(
+                        get: { edf.pitchKp },
                         set: {
-                            pitchKp = $0
+                            edf.pitchKp = $0
                         }))
                     .keyboardType(UIKeyboardType.decimalPad)
                     Text("Ki:")
-                    TextField(pitchKi, text: Binding<String>(
-                        get: { pitchKi },
+                    TextField(edf.pitchKi, text: Binding<String>(
+                        get: { edf.pitchKi },
                         set: {
                             
-                            pitchKi = $0
+                            edf.pitchKi = $0
                         }))
                     .keyboardType(UIKeyboardType.decimalPad)
                     Text("Kd:")
-                    TextField(pitchKd, text: Binding<String>(
-                        get: { pitchKd },
+                    TextField(edf.pitchKd, text: Binding<String>(
+                        get: { edf.pitchKd },
                         set: {
-                            pitchKd = $0
+                            edf.pitchKd = $0
                         }))
                     .keyboardType(UIKeyboardType.decimalPad)
                 }
                 HStack {
                     Text("Yaw:")
                     Text("Kp:")
-                    TextField(yawKp, text: Binding<String>(
-                        get: { yawKp },
+                    TextField(edf.yawKp, text: Binding<String>(
+                        get: { edf.yawKp },
                         set: {
-                            yawKp = $0
+                            edf.yawKp = $0
                         }))
                     .keyboardType(UIKeyboardType.decimalPad)
                     Text("Ki:")
-                    TextField(yawKi, text: Binding<String>(
-                        get: { yawKi },
+                    TextField(edf.yawKi, text: Binding<String>(
+                        get: { edf.yawKi },
                         set: {
-                            yawKi = $0
+                            edf.yawKi = $0
                         }))
                     .keyboardType(UIKeyboardType.decimalPad)
                     Text("Kd:")
-                    TextField(yawKd, text: Binding<String>(
-                        get: { yawKd },
+                    TextField(edf.yawKd, text: Binding<String>(
+                        get: { edf.yawKd },
                         set: {
-                            yawKd = $0
+                            edf.yawKd = $0
                         }))
                     .keyboardType(UIKeyboardType.decimalPad)
                 }
             }.padding(.leading)
             
-            Section {
-                HStack {
-                    Text("Servo 0: " + String(Int(servo0Position)))
-                        .padding(.trailing)
-                    Slider(value: Binding(get: {
-                        servo0Position
-                    }, set: { (newVal) in
-                        servo0Position = newVal
-                    }), in: -30...30, step: 1) { editing in
-                        if(!editing) {
-                            bluetoothDevice.setServos(input: "0" + String(Int(servo0Position)))
-                        }
-                    }
-                }.padding()
-                HStack {
-                    Text("Servo 1: " + String(Int(servo1Position)))
-                        .padding(.trailing)
-                    Slider(value: Binding(get: {
-                        servo1Position
-                    }, set: { (newVal) in
-                        servo1Position = newVal
-                    }), in: -30...30, step: 1) { editing in
-                        if(!editing) {
-                            bluetoothDevice.setServos(input: "1" + String(Int(servo1Position)))
-                        }
-                    }
-                }.padding()
-                HStack {
-                    Text("Servo 2: " + String(Int(servo2Position)))
-                        .padding(.trailing)
-                    Slider(value: Binding(get: {
-                        servo2Position
-                    }, set: { (newVal) in
-                        servo2Position = newVal
-                    }), in: -30...30, step: 1) { editing in
-                        if(!editing) {
-                            bluetoothDevice.setServos(input: "2" + String(Int(servo2Position)))
-                        }
-                    }
-                }.padding()
-                HStack {
-                    Text("Servo 3: " + String(Int(servo3Position)))
-                        .padding(.trailing)
-                    Slider(value: Binding(get: {
-                        servo3Position
-                    }, set: { (newVal) in
-                        servo3Position = newVal
-                    }), in: -30...30, step: 1) { editing in
-                        if (!editing) {
-                            bluetoothDevice.setServos(input: "3" + String(Int(servo3Position)))
-                        }
-                    }
-                }.padding()
-            }
             HStack {
                 Text("EDF Power: " + String(Int(edfPower)))
                     .padding(.trailing)
@@ -188,16 +119,22 @@ struct ThrustVectoringEDFView: View {
                     }
                 }
             }.padding()
-            GroupBox {
-                NavigationLink("View Orientation:", destination: edfGraphView())
-                    .padding()
-            }
+            edfGraphView()
+                .padding()
+//            GroupBox {
+//                NavigationLink("View Orientation:", destination: edfGraphView())
+//                    .padding()
+//            }
             GroupBox {
                 NavigationLink("View Servo Values:", destination: edfServoPosView())
                     .padding()
             }
             GroupBox {
                 NavigationLink("View PID Values:", destination: edfPidView())
+                    .padding()
+            }
+            GroupBox {
+                NavigationLink("Control Servo:", destination: edfServoControlView())
                     .padding()
             }
         }.hideKeyboardWhenTappedAround()
@@ -240,12 +177,12 @@ struct edfGraphView : View {
                         Text("Reset All")
                     }.buttonStyle(BorderlessButtonStyle())
                         .frame(maxWidth: .infinity, alignment: .center)
-                    Button(action: {
-                        bluetoothDevice.setBNO08X(input: "1")
-                    }) {
-                        Text("Calibrate")
-                    }.buttonStyle(BorderlessButtonStyle())
-                        .frame(maxWidth: .infinity, alignment: .center)
+//                    Button(action: {
+//                        bluetoothDevice.setBNO08X(input: "1")
+//                    }) {
+//                        Text("Calibrate")
+//                    }.buttonStyle(BorderlessButtonStyle())
+//                        .frame(maxWidth: .infinity, alignment: .center)
                 }.padding(.bottom)
             }.onDisappear(perform: {
                 bluetoothDevice.setBNO08X(input: "10")
@@ -260,8 +197,8 @@ struct edfGraphView : View {
             Text("Roll")
             ChartStyle().getGraph(datasets: edf.getRoll(), colour: .blue)
             
-            Text("Yaw")
-            ChartStyle().getGraph(datasets: edf.getYaw(), colour: .red)
+//            Text("Yaw")
+//            ChartStyle().getGraph(datasets: edf.getYaw(), colour: .red)
         }
     }
 }
@@ -369,6 +306,74 @@ struct edfPidView : View {
             
             Text("Roll Command")
             ChartStyle().getGraph(datasets: edf.getRollCommand(), colour: .blue)
+        }
+    }
+}
+
+struct edfServoControlView : View {
+    @EnvironmentObject var edf : EDF
+    @EnvironmentObject var bluetoothDevice : BluetoothDeviceHelper
+    @State var servo0Position : Double = 0
+    @State var servo1Position : Double = 0
+    @State var servo2Position : Double = 0
+    @State var servo3Position : Double = 0
+    
+    var body: some View {
+        ScrollView {
+            Section {
+                HStack {
+                    Text("Servo 0: " + String(Int(servo0Position)))
+                        .padding(.trailing)
+                    Slider(value: Binding(get: {
+                        servo0Position
+                    }, set: { (newVal) in
+                        servo0Position = newVal
+                    }), in: -30...30, step: 1) { editing in
+                        if(!editing) {
+                            bluetoothDevice.setServos(input: "0" + String(Int(servo0Position)))
+                        }
+                    }
+                }.padding()
+                HStack {
+                    Text("Servo 1: " + String(Int(servo1Position)))
+                        .padding(.trailing)
+                    Slider(value: Binding(get: {
+                        servo1Position
+                    }, set: { (newVal) in
+                        servo1Position = newVal
+                    }), in: -30...30, step: 1) { editing in
+                        if(!editing) {
+                            bluetoothDevice.setServos(input: "1" + String(Int(servo1Position)))
+                        }
+                    }
+                }.padding()
+                HStack {
+                    Text("Servo 2: " + String(Int(servo2Position)))
+                        .padding(.trailing)
+                    Slider(value: Binding(get: {
+                        servo2Position
+                    }, set: { (newVal) in
+                        servo2Position = newVal
+                    }), in: -30...30, step: 1) { editing in
+                        if(!editing) {
+                            bluetoothDevice.setServos(input: "2" + String(Int(servo2Position)))
+                        }
+                    }
+                }.padding()
+                HStack {
+                    Text("Servo 3: " + String(Int(servo3Position)))
+                        .padding(.trailing)
+                    Slider(value: Binding(get: {
+                        servo3Position
+                    }, set: { (newVal) in
+                        servo3Position = newVal
+                    }), in: -30...30, step: 1) { editing in
+                        if (!editing) {
+                            bluetoothDevice.setServos(input: "3" + String(Int(servo3Position)))
+                        }
+                    }
+                }.padding()
+            }
         }
     }
 }

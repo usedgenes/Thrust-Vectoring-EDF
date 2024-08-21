@@ -5,7 +5,7 @@
 import Foundation
 import CoreBluetooth
 
-protocol BTDeviceDelegate: class {
+protocol BTDeviceDelegate: AnyObject {
     func deviceConnected()
     func deviceReady()
     func deviceBlinkChanged(value: Bool)
@@ -85,7 +85,7 @@ class BTDevice: NSObject {
             
             _blink = newValue
             if let char = blinkChar {
-                peripheral.writeValue(Data(bytes: [_blink ? 1 : 0]), for: char, type: .withResponse)
+                peripheral.writeValue(Data(_: [_blink ? 1 : 0]), for: char, type: .withResponse)
             }
         }
     }
@@ -188,15 +188,6 @@ extension BTDevice: CBPeripheralDelegate {
                 _blink = false
             }
             delegate?.deviceBlinkChanged(value: _blink)
-        }
-        if characteristic.uuid == utilitiesChar?.uuid, let b = characteristic.value {
-            var value = String(decoding: b, as: UTF8.self)
-            if(value != "") {
-//                if(value[...value.startIndex] == "5") {
-//                    value.remove(at: value.startIndex)
-//                    edf!.setLoopTime(loopTime: Int(value)!)
-//                }
-            }
         }
         if characteristic.uuid == servoChar?.uuid, let b = characteristic.value {
             var value = String(decoding: b, as: UTF8.self)

@@ -9,7 +9,15 @@ import Foundation
 import SwiftUICharts
 
 class EDF : ObservableObject {
-    @Published var loopTime : Int = 0
+    @Published var rollKp : String = "2.0"
+    @Published var rollKi : String = "0.0"
+    @Published var rollKd : String = "0.0"
+    @Published var pitchKp : String = "2.0"
+    @Published var pitchKi : String = "0.0"
+    @Published var pitchKd : String = "0.0"
+    @Published var yawKp : String = "2.0"
+    @Published var yawKi : String = "0.0"
+    @Published var yawKd : String = "0.0"
     
     @Published var yawData : [LineChartDataPoint] = []
     @Published var pitchData : [LineChartDataPoint] = []
@@ -24,10 +32,6 @@ class EDF : ObservableObject {
     @Published var yawPIDCommand : [LineChartDataPoint] = []
     @Published var pitchPIDCommand : [LineChartDataPoint] = []
     @Published var rollPIDCommand : [LineChartDataPoint] = []
-    
-    func setLoopTime(loopTime : Int) {
-        self.loopTime = loopTime
-    }
     
     func addYawVelocity(yawVelocity: Float) {
         yawVelocityData.append(LineChartDataPoint(value: Double(yawVelocity), xAxisLabel: " ", description: "Yaw"))
