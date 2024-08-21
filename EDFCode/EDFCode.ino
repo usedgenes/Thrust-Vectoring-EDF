@@ -69,13 +69,13 @@ class ServoCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     String value = pCharacteristic->getValue();
     if (value.substring(0, 1) == "0") {
-      servos.WriteServoPosition(0, value.substring(1, value.length()).toInt());
+      servos.servos[0].write(value.substring(1, value.length()).toInt());
     } else if (value.substring(0, 1) == "1") {
-      servos.WriteServoPosition(1, value.substring(1, value.length()).toInt());
+      servos.servos[1].write(value.substring(1, value.length()).toInt());
     } else if (value.substring(0, 1) == "2") {
-      servos.WriteServoPosition(2, value.substring(1, value.length()).toInt());
+      servos.servos[2].write(value.substring(1, value.length()).toInt());
     } else if (value.substring(0, 1) == "3") {
-      servos.WriteServoPosition(3, value.substring(1, value.length()).toInt());
+      servos.servos[3].write(value.substring(1, value.length()).toInt());
     } else if (value.substring(0, 1) == "4") {
       EDF.write(value.substring(1, value.length()).toInt());
     }
@@ -167,9 +167,9 @@ void setup() {
 
   pAdvertising->start();
 
-  yawPID.SetGains(50.0, 0.0, 0.0);
-  pitchPID.SetGains(50.0, 0.0, 0.0);
-  rollPID.SetGains(50.0, 0.0, 0.0);
+  yawPID.SetGains(1, 0.0, 0.0);
+  pitchPID.SetGains(1, 0.0, 0.0);
+  rollPID.SetGains(1, 0.0, 0.0);
   servos.Init();
   imu.Init();
   EDF.attach(15);
@@ -199,10 +199,12 @@ void loop() {
   pitchCommand = pitchPID.ComputeCorrection(pitch, deltaTime);
   rollCommand = rollPID.ComputeCorrection(roll, deltaTime);
 
-  servo0pos = servos.WriteServoPosition(0, -pitchCommand * mixing - yawCommand * mixing);
-  servo1pos = servos.WriteServoPosition(1, -rollCommand * mixing - yawCommand * mixing);
-  servo2pos = servos.WriteServoPosition(2, pitchCommand * mixing - yawCommand * mixing);
-  servo3pos = servos.WriteServoPosition(3, rollCommand * mixing - yawCommand * mixing);
+  yawCommand = 0;
+
+  servo0pos = servos.WriteServoPosition(0, pitchCommand * mixing - yawCommand * mixing);
+  servo1pos = servos.WriteServoPosition(1, rollCommand * mixing - yawCommand * mixing);
+  servo2pos = servos.WriteServoPosition(2, -pitchCommand * mixing - yawCommand * mixing);
+  servo3pos = servos.WriteServoPosition(3, -rollCommand * mixing - yawCommand * mixing);
 
   if (bluetoothRefresh == BLUETOOTH_REFRESH_RATE) {
     if (logBluetoothEulerAngle) {

@@ -15,11 +15,11 @@
 
 class ServoControl {
 private:
-  Servo servos[4];
   int servoPins[4] = { 12, 13, 14, 27 };
   int servoStartingPosition[4] = { 80, 105, 80, 135 };
   int maxPosition = 20;
 public:
+  Servo servos[4];
   void Init();
   float WriteServoPosition(int servoNumber, float position);
 };
