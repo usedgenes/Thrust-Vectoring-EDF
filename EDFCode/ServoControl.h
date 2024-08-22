@@ -9,14 +9,14 @@
 //      14
 
 //12: 80 neutral
-//13: 105 neutral
-//14: 80 neutral
+//13: 110 neutral
+//14: 110 neutral
 //27: 135 neutral
 
 class ServoControl {
 private:
   int servoPins[4] = { 12, 13, 14, 27 };
-  int servoStartingPosition[4] = { 80, 105, 80, 135 };
+  int servoStartingPosition[4] = { 80, 110, 110, 135 };
   int maxPosition = 20;
 public:
   Servo servos[4];

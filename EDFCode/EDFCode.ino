@@ -204,9 +204,9 @@ void loop() {
   yawCommand = 0;
 
   servo0pos = servos.WriteServoPosition(0, pitchCommand * mixing - yawCommand * mixing);
-  servo1pos = servos.WriteServoPosition(1, rollCommand * mixing - yawCommand * mixing);
+  servo1pos = servos.WriteServoPosition(1, -rollCommand * mixing - yawCommand * mixing);
   servo2pos = servos.WriteServoPosition(2, -pitchCommand * mixing - yawCommand * mixing);
-  servo3pos = servos.WriteServoPosition(3, -rollCommand * mixing - yawCommand * mixing);
+  servo3pos = servos.WriteServoPosition(3, rollCommand * mixing - yawCommand * mixing);
 
   if (bluetoothRefresh == BLUETOOTH_REFRESH_RATE) {
     if (logBluetoothEulerAngle) {
