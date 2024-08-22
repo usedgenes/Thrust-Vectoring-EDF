@@ -1,10 +1,13 @@
 #include "InertialMeasurementUnit.h"
 
 void InertialMeasurementUnit::Init() {
-  vspi.begin(22, 23, 21, 33);  // Communication with MPU-6050 at 400KHz
+  Serial.println("1");
+  vspi.begin(22, 23, 21, 33);
   accelgyro.beginSPI(33, 25, 26, 1000000, vspi);
   setReports();
+  Serial.println("2");
   ComputeEulerOffsets();
+  Serial.println("3");
 }
 
 void InertialMeasurementUnit::GetAdjustedEulerAngle(float& yaw, float& pitch, float& roll, float& adjustedYaw, float& adjustedPitch, float& adjustedRoll) {
@@ -77,9 +80,12 @@ void InertialMeasurementUnit::getRotation(float output[]) {
     setReports();
   }
   accelgyro.getSensorEvent();
-  while (accelgyro.getSensorEventID() != SENSOR_REPORTID_ROTATION_VECTOR) {
-    setReports();
-    accelgyro.getSensorEvent();
+  if (accelgyro.getSensorEvent() == true) {
+    while (accelgyro.getSensorEventID() != SENSOR_REPORTID_ROTATION_VECTOR) {
+      setReports();
+      accelgyro.getSensorEvent();
+      Serial.print("9");
+    }
   }
   output[0] = accelgyro.getQuatI();
   output[1] = accelgyro.getQuatJ();

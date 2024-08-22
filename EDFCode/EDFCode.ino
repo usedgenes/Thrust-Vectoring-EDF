@@ -170,8 +170,10 @@ void setup() {
   yawPID.SetGains(1, 0.0, 0.0);
   pitchPID.SetGains(1, 0.0, 0.0);
   rollPID.SetGains(1, 0.0, 0.0);
-  servos.Init();
   imu.Init();
+  servos.Init();
+  delay(10000);
+  Serial.println("servos");
   EDF.attach(15);
   EDF.write(50);
 }
